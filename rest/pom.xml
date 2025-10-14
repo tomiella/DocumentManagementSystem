@@ -70,21 +70,22 @@
         <optional>true</optional>
     </dependency>
 
+    <dependency>
+        <groupId>org.flywaydb</groupId>
+        <artifactId>flyway-core</artifactId>
+    </dependency>
+
+    <dependency>
+        <groupId>org.flywaydb</groupId>
+        <artifactId>flyway-database-postgresql</artifactId>
+    </dependency>
+
     <!-- Testing stack -->
     <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-test</artifactId>
         <scope>test</scope>
     </dependency>
-    <!-- Mockito JUnit Jupiter API is already included transitively,
-         but you can pin a version if you want:
-         <dependency>
-           <groupId>org.mockito</groupId>
-           <artifactId>mockito-junit-jupiter</artifactId>
-           <scope>test</scope>
-         </dependency>
-    -->
-    <!-- H2 for @DataJpaTest profile -->
     <dependency>
         <groupId>com.h2database</groupId>
         <artifactId>h2</artifactId>
