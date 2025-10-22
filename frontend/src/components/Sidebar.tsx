@@ -1,15 +1,14 @@
 import {Navlink} from 'react-router-dom';
+
 const items = [
     {to:'/dashbaord', label: 'Dashboard'},
     {to:'/documents', label: 'Documents'},
     {to:'/types', label: 'Types'},
-    {to: 'tags', label:'Tags'},
+    {to: '/tags', label:'Tags'},
     {to:'/users', label: 'Users'}
 ];
 
-import { NavLink } from 'react-router-dom';
-
-export default function Sidebar({ item }) {
+export default function Sidebar(){
     return (
         <nav className="bg-white border-r p-4">
             <h1 className="text-xl font-bold mb-4">Paperless</h1>
@@ -29,3 +28,5 @@ export default function Sidebar({ item }) {
         </nav>
     );
 }
+/*Note: if you find seomthing that is not working or is questionable, please just let me know
+    Lg Mike*/

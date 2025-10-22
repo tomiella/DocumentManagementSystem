@@ -21,10 +21,12 @@ export async function api<T>(path: string, init?: RequestInit): Promise<T> {
     return res.json();
 }
 
-export const PaperlessAPI = {
+export const PaperlessAPI = { //FLAG: Doublecheck this for ==>FIXME.
     login: (u: string, p: string) => api<{ token: string }>(`/auth/login`, { method: 'POST', body: JSON.stringify({ u, p }) }),
-    me: () => api<{ user: { name: string } }>(`/auth/me`),
+    // me: () => api<{ user: { name: string } }>(`/auth/me`),
     stats: () => api<{ documents: number; types: number; tags: number; unscanned: number; characters: number; savedTrees: number }>(`/stats`),
     listDocs: () => api<DocumentRow[]>(`/documents`),
     upload: (form: FormData) => fetch(`${base}/documents`, { method: 'POST', body: form }).then(r => { if(!r.ok) throw new Error('Upload failed'); return r.json(); }),
 };
+/*Note: if you find seomthing that is not working or is questionable, please just let me know
+    Lg Mike*/
