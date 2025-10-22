@@ -28,5 +28,34 @@ services:
       - "8080:8080"
     restart: unless-stopped
 
+  frontend:
+    build:
+      context: ./frontend
+    container_name: paperless-frontend-build
+    command: sh -c "npm run build && tail -f /dev/null"
+    working_dir: /app
+    volumes:
+      - frontend_dist:/app/dist
+    networks: [paperless]
+
+
+  nginx:
+      build:
+        context: ./nginx
+      container_name: paperless-nginx
+      ports:
+        - "80:80"
+      depends_on:
+        - frontend
+        - api
+      volumes:
+        - frontend_dist:/usr/share/nginx/html
+      networks: [paperless]
+
 volumes:
+  frontend_dist:
   pgdata:
+
+networks:
+  paperless:
+    driver: bridge
