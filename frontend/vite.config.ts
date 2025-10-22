@@ -1,0 +1,20 @@
+// frontend/vite.config.ts
+
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+    plugins: [react()],
+    server: {
+        proxy: {
+            '/api': {
+                target: 'http://localhost:8081',
+                changeOrigin: true,
+                secure: false,
+            }
+        }
+    }
+})
+
+///*Note: if you find seomthing that is not working or is questionable, please just let me know
+//     Lg Mike*/

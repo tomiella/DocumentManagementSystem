@@ -10,23 +10,39 @@ services:
       - "pgdata:/var/lib/postgresql/data"
     ports:
       - "5432:5432"
+    networks: [paperless]
+
   api:
     build: ./rest
-    container_name: api
+#    container_name: api
     environment:
       JDBC_URL: jdbc:postgresql://postgres:5432/mydatabase
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: secret
-      SERVER_PORT: 8080
+      SERVER_PORT: 8081
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydatabase
       SPRING_DATASOURCE_USERNAME: myuser
       SPRING_DATASOURCE_PASSWORD: secret
     depends_on:
       - postgres
-    ports:
-      - "8080:8080"
+    ports: []
+#      - "8081:8081"
     restart: unless-stopped
+    networks: [paperless]
+
+  # ---- Web UI / Frontend + NginX Proxy ----
+  webui:
+      build: ./frontend       # multistage Dockerfile is used
+      depends_on:
+        - api
+      ports:
+        - "8081:80"
+      networks: [paperless]
 
 volumes:
   pgdata:
+
+networks:
+  paperless:
+    driver: bridge
