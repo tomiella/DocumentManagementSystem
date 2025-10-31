@@ -1,4 +1,4 @@
-import {Navlink} from 'react-router-dom';
+import {NavLink} from 'react-router-dom';
 
 const items = [
     {to:'/dashbaord', label: 'Dashboard'},
@@ -11,9 +11,9 @@ const items = [
 export default function Sidebar(){
     return (
         <nav className="bg-white border-r p-4">
-            <h1 className="text-xl font-bold mb-4">Paperless</h1>
+            <h1 className="text-xl font-bold mb-4">Paperless ™ </h1>
             <nav className="space-y-1">
-                {item.map(i => (
+                {items.map(i => (
                     <NavLink
                         key={i.to}
                         to={i.to}

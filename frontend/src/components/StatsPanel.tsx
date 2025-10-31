@@ -15,11 +15,11 @@ export default function StatsPanel(props: { stats?: any }) {
         <aside className="bg-white border rounded p-4">
             <div className="font-medium mb-2">Statistics</div>
             <div className="space-y-1">
-                <Stats label="Documents" value={s.documents} />
-                <Stats label="Types" value={s.types} />
                 <Stats label="Tags" value={s.tags} />
+                <Stats label="Types" value={s.types} />
                 <Stats label="Characters" value={s.characters} />
                 <Stats label="Comments" value={s.comments} />
+                <Stats label="Documents" value={s.documents} />
                 <Stats label="Trees Saved" value={s.treesSaved} />
             </div>
         </aside>

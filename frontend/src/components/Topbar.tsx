@@ -6,7 +6,7 @@ export default function Topbar() {
             <Searchbar />
             <div className="flex items-center gap-3">
             </div>
-                <span className="text-sm text-gray-600">Welcome, </span>
+                <span className="text-sm text-gray-600">Welcome, XYZ </span>
             <div className="size-9 rounded-full bg-gray"></div>
         </header>
 

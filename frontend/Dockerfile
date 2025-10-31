@@ -13,7 +13,7 @@ RUN npm ci || npm install
 
 # 3) Copy the rest and build
 COPY . .
-RUN npm run build
+RUN npm run build   # Vite outputs (should) to /app/dist by default
 
 
 
@@ -24,9 +24,10 @@ FROM nginx:1.29.2-alpine
 COPY nginx/default.conf /etc/nginx/conf.d/default.conf
 
 # copy the build frontend
-COPY --from=build /app/dist /user/share/nginx/html
+COPY --from=build /app/dist /usr/share/nginx/html
 
+EXPOSE 80
 
 
 #Note: if you find seomthing that is not working or is questionable, please just let me know
-#    Lg Mike
+#    Lg Mikeq
