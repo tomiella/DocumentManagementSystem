@@ -1,6 +1,7 @@
 import {NavLink} from 'react-router-dom';
 
 const items = [
+    {to:'/login', label: 'Login'},
     {to:'/dashbaord', label: 'Dashboard'},
     {to:'/documents', label: 'Documents'},
     {to:'/types', label: 'Types'},
