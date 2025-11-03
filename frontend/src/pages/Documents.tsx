@@ -1,4 +1,5 @@
 // placement: E - Main Content
+//Note: Currently just a placeholder --> future usage: presentation/ view of documents
 
 import Table from '../components/Table';
 import {useEffect, useState} from "react";
@@ -41,5 +42,3 @@ export default function Documents() {
             </div>
     );
 }
-/*Note: if you find seomthing that is not working or is questionable, please just let me know
-    Lg Mike*/

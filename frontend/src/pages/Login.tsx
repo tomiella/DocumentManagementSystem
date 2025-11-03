@@ -9,5 +9,3 @@ export default function Login() {
         </div>
     );
 }
-/*Note: if you find seomthing that is not working or is questionable, please just let me know
-    Lg Mike*/

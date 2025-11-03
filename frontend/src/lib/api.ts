@@ -43,7 +43,7 @@ export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-export const PaperlessAPI = { //FLAG: Doublecheck this for ==>FIXME.
+export const PaperlessAPI = { //FLAG: Doublecheck
     login: (u: string, p: string) =>
       api<{ token?: string; user?: { name: string } }>(`/auth/login`, {
         method: 'POST',

@@ -1,4 +1,4 @@
-// placement: C - Top Right (column 3, row 1)
+// placement: C - Top Right (column 3, row 1) 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import loggedout from '../assets/loggedout_icon.png';

@@ -11,7 +11,6 @@ export default function DocTopBar() {
         {to: "extra", label: 'Function 3'},
     ];
 
-    /*//Question: why do it like this? ANSWER: We will ask the questions!!*/
     return (
         <div className ="flex flex-col gap-3">
             {/*F: Tabs*/}

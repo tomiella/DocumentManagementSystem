@@ -31,7 +31,7 @@ export default function Upload() {
     data.append('fileType', String(raw.get('fileType') || ''));
     data.append('title', String(raw.get('title') || ''));
 
-    // Frontend field name is contentType; backend key is content_type
+    // The Frontend field name is contentType; the backend key is content_type
     data.append('content_type', String(raw.get('contentType') || ''));
     data.append('summary', String(raw.get('summary') || ''));
 
@@ -135,5 +135,3 @@ export default function Upload() {
     </div>
   );
 }
-/*Note: if you find seomthing that is not working or is questionable, please just let me know
-    Lg Mike*/
