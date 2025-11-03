@@ -16,5 +16,5 @@ createRoot(document.getElementById('root')!).render(
 
 );
 
-/*Note: if you find seomthing that is not working or is questionable, please just let me know
+/*Note: if you find something that is not working or is questionable, please just let me know
 Lg Mike*/

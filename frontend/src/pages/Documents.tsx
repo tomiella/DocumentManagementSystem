@@ -1,5 +1,7 @@
-import StatsPanel from '../components/StatsPanel';
+// placement: E - Main Content
+
 import Table from '../components/Table';
+import {useEffect, useState} from "react";
 
 
 const rows = [
@@ -8,19 +10,35 @@ const rows = [
 ];
 
 
-export default function Dashboard() {
+export default function Documents() {
+    const [userName,setUserName] = useState<string | null>(null);
+
+    useEffect(() => {
+        const updateFromSession = () => setUserName(sessionStorage.getItem('userName'));
+        updateFromSession();
+        window.addEventListener('auth:changed', updateFromSession);
+        window.addEventListener('storage', updateFromSession);
+        return () => {
+            window.removeEventListener('auth:changed', updateFromSession);
+            window.removeEventListener('storage', updateFromSession);
+        };
+    }, []);
+
+
     return (
-        <div className="grid grid-cols-[1fr_256px] gap-6">
             <div className="space-y-4">
-                <h2 className="text-2xl font-semibold">Hello, Max!</h2>
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-white border rounded h-48" />
-                    <div className="bg-white border rounded h-48" />
+                <h2 className="text-2xl font-semibold">
+                    {userName? `Hello, ${userName}!`:
+                        `Hello Paperfriendly World!!`}
+                </h2>
+                <div className="grid grid-cols-2 gap-6">
+                    <div className="bg-red-300 border rounded h-20" />
+                    <div className="bg-blue-300 border rounded h-20" />
                 </div>
-                <Table rows={rows} />
+                <div className="w-full overflow-x-auto">
+                    <Table rows={rows} />
+                </div>
             </div>
-            <StatsPanel />
-        </div>
     );
 }
 /*Note: if you find seomthing that is not working or is questionable, please just let me know

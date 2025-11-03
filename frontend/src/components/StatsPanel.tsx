@@ -1,29 +1,33 @@
-type StatsPanelProps = { label: string; value: number | string;}
+// placement: H - Right Stats Panel
 
-function Stats({ label, value }: StatsPanelProps) {
-    return (
-        <div className="flex items-center justify-between rounded p-4">
-            <span className="text-lg font-bold">{label}</span>
-            <span className="text-2xl font-bold">{value}</span>
-        </div>
-    )
+type StatsRowProps = { label: string; value: number | string };
+
+function StatsRow({ label, value }: StatsRowProps) {
+  return (
+    <div className="flex items-center justify-between rounded p-4">
+      <span className="text-medium font-bold">{label}</span>
+      <span className="inline-flex items-center px-3 py-1 rounded-full bg-blue-600 text-white text-sm font-semibold whitespace-nowrap tabular-nums">
+        {value}
+      </span>
+    </div>
+  );
 }
 
 export default function StatsPanel(props: { stats?: any }) {
-    const s = props.stats ?? { documents: 142, types: 12, tags: 14, unscanned: 15, characters: 82344, savedTrees: 168 };
-    return (
-        <aside className="bg-white border rounded p-4">
-            <div className="font-medium mb-2">Statistics</div>
-            <div className="space-y-1">
-                <Stats label="Tags" value={s.tags} />
-                <Stats label="Types" value={s.types} />
-                <Stats label="Characters" value={s.characters} />
-                <Stats label="Comments" value={s.comments} />
-                <Stats label="Documents" value={s.documents} />
-                <Stats label="Trees Saved" value={s.treesSaved} />
-            </div>
-        </aside>
-    )
+  const s =
+    props.stats ?? ({ savedTrees: 168, documents: 142, characters: 82344, comments: 15, types: 12, tags: 14 } as const);
+
+  return (
+    <aside className="bg-white border rounded p-4">
+      <div className="text-2xl font-extrabold mb-2">Statistics</div>
+      <div className="space-y-0">
+        <StatsRow label="Trees Saved" value={s.savedTrees} />
+        <StatsRow label="Documents" value={s.documents} />
+        <StatsRow label="Characters" value={s.characters} />
+        <StatsRow label="Comments" value={s.comments} />
+        <StatsRow label="Types" value={s.types} />
+        <StatsRow label="Tags" value={s.tags} />
+      </div>
+    </aside>
+  );
 }
-/*Note: if you find seomthing that is not working or is questionable, please just let me know
-    Lg Mike*/
