@@ -1,6 +1,8 @@
 HELP.md
-rest/target/
+target/
+**/target/
 .mvn/wrapper/maven-wrapper.jar
+**/.mvn/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
@@ -36,8 +38,13 @@ build/
 notes.md
 
 ### Frontend build artifacts ###
-frontend/dist/
-frontend/node_modules/
+# --- Node.js / Frontend ---
+node_modules/
+**/node_modules/
+dist/
+build/
+**/dist/
+**/build/
 
 ### Backend build artifacts ###
 rest/target/
