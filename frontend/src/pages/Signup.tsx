@@ -31,7 +31,7 @@ export default function Signup() {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-20 bg-white border rounded p-6 space-y-4">
+    <div className="max-w-md mx-auto mt-20 bg-bg border rounded p-6 space-y-4">
       <h2 className="text-xl font-semibold">Sign up</h2>
 
       <form onSubmit={onSubmit} noValidate className="space-y-3">

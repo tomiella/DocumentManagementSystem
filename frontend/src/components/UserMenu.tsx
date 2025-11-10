@@ -1,8 +1,8 @@
 // placement: C - Top Right (column 3, row 1) 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import loggedout from '../assets/loggedout_icon.png';
-import loggedin from '../assets/loggedIn_icon.png';
+import loggedout from '../assets/loggedout_iconT.png';
+import loggedin from '../assets/loggedIn_iconT.png';
 
 //INFO: dev-only mock authentication
 const DEV_DEMO = { username: 'demo', password: 'demo12345', name: 'Demo User' } as const;
@@ -81,7 +81,7 @@ export default function UserMenu() {
             </button>
 
             {open && (
-                <div className="absolute right-0 top-full mt-2 w-64 bg-white border rounded shadow p-3 z-50">
+                <div className="absolute right-0 top-full mt-2 w-64 bg-black border rounded shadow p-3 z-50">
                     {!user ? (
                         <form className="space-y-3" onSubmit={handleLoginSubmit} noValidate>
                             <div className="flex flex-col gap-1">
@@ -120,7 +120,7 @@ export default function UserMenu() {
                                 </button>
                                 <button
                                     type="button"
-                                    className="text-sm text-green-700 hover:underline"
+                                    className="text-sm text-text hover:underline"
                                     onClick={() => {
                                         setOpen(false);
                                         navigate('/signup');

@@ -12,7 +12,7 @@ const items = [
 
 export default function TocNav() {
     return (
-        <nav className="bg-blue-100 border-r p-4">
+        <nav className="bg-bg border-r p-4">
             <nav className="space-y-1">
                 {items.map((i) => (
                     <NavLink

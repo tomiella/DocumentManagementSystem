@@ -1,7 +1,7 @@
 // placement: A - Logo
 
 // import logo from '../assets/logo.png';
-import logo from '../assets/logo2.png';
+import logo from '../assets/logo2T.png';
 // import logo from '../assets/logoPaperless.png'
 
 

@@ -11,6 +11,10 @@ export default {
                 'secondary': '#60D2D2',
                 'tertiary': '#6B2FFF',
                 'quaternary': '#D600D6',
+                bg:     '#0d1117',
+                text:   '#a7ff83',
+                btn1:   '#17b978',
+                btn2:   '#086972',
             }
         }
     },

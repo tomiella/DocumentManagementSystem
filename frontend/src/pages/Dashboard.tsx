@@ -32,15 +32,15 @@ export default function Dashboard() {
 
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 bg-bg ">
             <h2 className="text-2xl font-semibold">
                 {userName? `Hello, ${userName}!`:
                     `Hello Paperfriendly World!!`}
             </h2>
 
             <div className="grid grid-cols-2 gap-4">
-                <div className="bg-blue-200 border rounded h-20" />
-                <div className="bg-green-200 border rounded h-20" />
+                <div className="bg-green-600 border rounded h-20" />
+                <div className="bg-green-900 border rounded h-20" />
             </div>
             <div className="w-full overflow-x-auto">
                 <Table rows={rows} />
