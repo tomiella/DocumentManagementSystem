@@ -1,11 +1,16 @@
 package at.bif.swen.rest.service;
 
+import at.bif.swen.rest.config.AmqpConfig;
 import at.bif.swen.rest.dto.DocumentCreateRequest;
 import at.bif.swen.rest.dto.DocumentUpdateRequest;
 import at.bif.swen.rest.entity.Document;
 import at.bif.swen.rest.exception.NotFoundException;
+import at.bif.swen.rest.messaging.DocumentCreatedEvent;
 import at.bif.swen.rest.repository.DocumentRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +21,8 @@ import java.util.*;
 public class DocumentService {
 
     private final DocumentRepository documentRepository;
+    private final RabbitTemplate rabbit;
+    private static final Logger log = LoggerFactory.getLogger(DocumentService.class);
 
     @Transactional
     public Document create(DocumentCreateRequest req) {
@@ -26,7 +33,19 @@ public class DocumentService {
                 .size(req.size())
                 .summary(req.summary())
                 .build();
-        return documentRepository.save(d);
+        Document saved =  documentRepository.save(d);
+
+        DocumentCreatedEvent evt = new DocumentCreatedEvent(saved.getId(), saved.getFilename(), saved.getContentType(), saved.getSize());
+        try {
+            rabbit.setMessageConverter(new org.springframework.amqp.support.converter.Jackson2JsonMessageConverter());
+            rabbit.convertAndSend(AmqpConfig.EXCHANGE, AmqpConfig.ROUTING_KEY, evt);
+            log.info("Published DocumentCreatedEvent id={} filename={}", saved.getId(), saved.getFilename());
+        } catch (Exception e) {
+            log.error("Failed to publish DocumentCreatedEvent id={} reason={}", saved.getId(), e.toString(), e);
+            // TODO: maybe rollbakc???
+        }
+
+        return saved;
     }
 
     @Transactional(readOnly = true)
