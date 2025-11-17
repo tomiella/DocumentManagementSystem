@@ -11,14 +11,14 @@ export default function SearchBar() {
     }
 
     return (
-        <form className="flex items-center gap-2 bg-bg" onSubmit={onSubmit}>
+        <form className="flex items-center gap-2" onSubmit={onSubmit}>
             <input
                 className="border rounded px-3 py-2 text-sm w-64"
                 placeholder="Search"
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
             />
-            <button className="border rounded px-3 py-2 text-sm bg-bg" type="submit">Search</button>
+            <button className="border rounded px-3 py-2 text-sm" type="submit">Search</button>
         </form>
     );
 }

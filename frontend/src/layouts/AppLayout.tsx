@@ -9,42 +9,26 @@ import RightStats from "../components/StatsPanel";
 export default function AppLayout() {
     return (
         <div
-            className="
-        min-h-screen
-        grid
-        grid-cols-[240px_1fr_280px]
-        gap-3 p-3
-      "
-        >
-            {/* Column 1: A over D */}
-            <section className="col-start-1 col-end-2 grid grid-rows-[auto_1fr] gap-3">
-                <header>
-                    <Logo />
-                </header>
-                <aside className="overflow-auto">
-                    <TocNav />
-                </aside>
-            </section>
+            className="min-h-screen grid grid-cols-[16rem_1fr_16rem] grid-rows-[auto_1fr_auto] bg-bg text-text">
+            {/* Row 1: Top bar (A+ B + C) */}
+            <header className="col-span-3 flex items-center justify-between border-b p-3">
+                <Logo />
+                <SearchBar />
+                <UserMenu />
+            </header>
 
-            {/* Column 2: B over E (+ F/G inside Documents) */}
-            <section className="col-start-2 col-end-3 grid grid-rows-[auto_1fr] gap-3">
-                <div>
-                    <SearchBar />
-                </div>
-                <main className="overflow-auto">
-                    <Outlet />
-                </main>
-            </section>
 
-            {/* Column 3: C over H */}
-            <section className="col-start-3 col-end-4 grid grid-rows-[auto_1fr] gap-3">
-                <div>
-                    <UserMenu />
-                </div>
-                <aside className="overflow-auto">
-                    <RightStats />
-                </aside>
-            </section>
+            {/* Row 2: Main body (D + E + F) */}
+
+            <aside className="border-r p-2 bg-bg"> <TocNav /> </aside>
+            <main className="p-4 overflow-y-auto"> <Outlet /> </main>
+            <aside className="border-r p-2 bg-bg"> <RightStats /> </aside>
+
+            {/* Row 3: Footer (G) */}
+            <footer className="col-span-3 text-center text-sm py-2 border-t bg-emerald-950">
+                © 2025 Paperless TM
+            </footer>
+
         </div>
     )
 }

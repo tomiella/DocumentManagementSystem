@@ -1,3 +1,9 @@
+/*Note:
+*   Deprecated / moving to http.ts && paperless.ts
+* */
+
+/*
+
 export type DocumentRow = {
     id: string;
     date: string;
@@ -14,6 +20,22 @@ export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const url = `${base}${path}`;
   const isFormData = typeof FormData !== 'undefined' && init?.body instanceof FormData;
 
+  if (init?.method && typeof init.method !== 'string') {
+      console.error('Invalid HTTP method passed to api() - expected "GETd"/"POST"/ but got:', init.method);
+  }
+
+
+  // Normalize and validate HTTP method to avoid passing objects to fetch.
+  const rawMethod = init?.method ?? 'GET';
+  let method: string;
+  if (typeof rawMethod === 'string') {
+    method = rawMethod;
+  } else {
+    console.error('Invalid HTTP method passed to api()', rawMethod);
+    // Fail fast with a clear error instead of letting fetch crash with [object Object]
+    throw new Error('Internal error: invalid HTTP method in api()');
+  }
+
   // Only set JSON headers when we're not sending FormData.
   const mergedHeaders: HeadersInit | undefined = isFormData
     ? (init?.headers as HeadersInit | undefined)
@@ -22,6 +44,7 @@ export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, {
     credentials: 'include', // allow cookie-based auth across the app
     ...init,
+    method,
     headers: mergedHeaders,
   });
 
@@ -42,7 +65,9 @@ export async function api<T>(path: string, init?: RequestInit): Promise<T> {
 
   return res.json() as Promise<T>;
 }
+*/
 
+/*
 export const PaperlessAPI = { //FLAG: Doublecheck
     login: (u: string, p: string) =>
       api<{ token?: string; user?: { name: string } }>(`/auth/login`, {
@@ -80,4 +105,4 @@ export const PaperlessAPI = { //FLAG: Doublecheck
         if (resp.status === 204) return null as any;
         return resp.json();
       }),
-};
+};*/

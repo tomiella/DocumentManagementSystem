@@ -24,6 +24,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydatabase
       SPRING_DATASOURCE_USERNAME: myuser
       SPRING_DATASOURCE_PASSWORD: secret
+      STORAGE_UPLOAD_DIR: /data/uploads
     depends_on:
       - postgres
     ports: []
@@ -37,11 +38,12 @@ services:
       depends_on:
         - api
       ports:
-        - "8081:80"
+        - "80:80"
       networks: [paperless]
 
 volumes:
   pgdata:
+  uploads:
 
 networks:
   paperless:
