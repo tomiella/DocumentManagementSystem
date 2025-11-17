@@ -1,0 +1,3 @@
+security:
+  jwt-secret: 6f9pUe8m2lQw3r9Zc1Jv7xK4tP2a5s8Dq0Hn3b6Rk9Uu1y4Wz7N0g==
+  jwt-ttl-seconds: 3600
