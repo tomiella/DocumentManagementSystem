@@ -6,17 +6,21 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
     private final UserRepository users;
     private final PasswordEncoder encoder;
 
-    public User authenticate(String username, String rawPassword) {
-        User u = users.findByUsernameIgnoreCase(username)
-                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
-        if (!u.isEnabled() || !encoder.matches(rawPassword, u.getPasswordHash())) {
-            throw new RuntimeException("Invalid credentials");
+    public Optional<User> authenticate(String username, String rawPassword) {
+        Optional<User> u = users.findByUsernameIgnoreCase(username);
+        if (u.isPresent()) {
+            User user = u.get();
+            if (!user.isEnabled() || !encoder.matches(rawPassword, user.getPasswordHash())) {
+                return Optional.empty();
+            }
         }
         return u;
     }

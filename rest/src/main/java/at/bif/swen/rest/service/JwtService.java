@@ -2,6 +2,8 @@ package at.bif.swen.rest.service;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import lombok.Getter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -12,14 +14,18 @@ import java.util.Map;
 @Service
 public class JwtService {
 
-    // Replace with a 256-bit key from configuration; for demo only
     private final Key key;
+    private final long ttlSeconds;
 
-    public JwtService(SecurityProps props) {
-        this.key = Keys.hmacShaKeyFor(props.jwtSecret().getBytes());
+    public JwtService(
+            @Value("${security.jwt-secret}") String secret,
+            @Value("${security.jwt-ttl-seconds:3600}") long ttlSeconds
+    ) {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes());
+        this.ttlSeconds = ttlSeconds;
     }
 
-    public String generateToken(String username, long ttlSeconds, Map<String, Object> claims) {
+    public String generateToken(String username, Map<String, Object> claims) {
         Instant now = Instant.now();
         return Jwts.builder()
                 .setSubject(username)
