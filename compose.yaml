@@ -10,6 +10,7 @@ services:
       - "pgdata:/var/lib/postgresql/data"
     ports:
       - "5432:5432"
+    networks: [paperless]
 
   rabbit:
     image: rabbitmq:3.13-management
@@ -23,16 +24,21 @@ services:
 
   api:
     build: ./rest
-    container_name: api
+#    container_name: api
     environment:
       JDBC_URL: jdbc:postgresql://postgres:5432/mydatabase
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: secret
-      SERVER_PORT: 8080
+      SERVER_PORT: 8081
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydatabase
       SPRING_DATASOURCE_USERNAME: myuser
       SPRING_DATASOURCE_PASSWORD: secret
+      STORAGE_UPLOAD_DIR: /data/uploads
+    depends_on:
+      - postgres
+    ports: []
+#      - "8081:8081"
       SPRING_RABBITMQ_HOST: rabbit
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: ${RABBIT_USER:-guest}
@@ -43,6 +49,16 @@ services:
     ports:
       - "8080:8080"
     restart: unless-stopped
+    networks: [paperless]
+
+  # ---- Web UI / Frontend + NginX Proxy ----
+  webui:
+      build: ./frontend       # multistage Dockerfile is used
+      depends_on:
+        - api
+      ports:
+        - "80:80"
+      networks: [paperless]
 
   ocr-worker:
     build: ./ocr-worker
@@ -56,3 +72,8 @@ services:
 
 volumes:
   pgdata:
+  uploads:
+
+networks:
+  paperless:
+    driver: bridge

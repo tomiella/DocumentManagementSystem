@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --brand: 40 94% 55%;
+    --color-bg: rgb(13 17 23);
+    --color-text: #e1eae7;
+    --color-btn1: #086972;
+    --color-btn2: #17b978;
+}
+
+
+body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: system-ui, sans-serif;
+}
+
+button,
+input[type="submit"],
+.btn {
+    background-color: var(--color-btn1);
+    color: var(--color-text);
+    border: none;
+    padding: 0.5em 1em;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover,
+input[type="submit"]:hover,
+.btn:hover {
+    background-color: var(--color-btn2);
+}
+
+input,
+textarea,
+select {
+    background-color: #0d1117;
+    color: #ffffff;
+    border: 1px solid var(--color-btn1);
+    border-radius: 4px;
+    padding: 0.5em;
+}
+
+a {
+    color: var(--color-btn2);
+}
+
+a:hover {
+    color: var(--color-btn1);
+}

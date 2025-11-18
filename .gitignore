@@ -1,6 +1,8 @@
 HELP.md
 target/
+**/target/
 .mvn/wrapper/maven-wrapper.jar
+**/.mvn/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
@@ -31,3 +33,28 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Internal Dev Notes ###
+notes.md
+
+### Frontend build artifacts ###
+# --- Node.js / Frontend ---
+node_modules/
+**/node_modules/
+dist/
+build/
+**/dist/
+**/build/
+
+### Backend build artifacts ###
+rest/target/
+rest/.mvn/
+rest/node_modules/
+
+### Logs ###
+*.log
+
+### OS & IDE ###
+.DS_Store
+.idea/
+./C02
