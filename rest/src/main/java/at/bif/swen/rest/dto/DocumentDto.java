@@ -12,3 +12,4 @@ public record DocumentDto(
         OffsetDateTime uploadedAt,
         String summary
 ) {}
+

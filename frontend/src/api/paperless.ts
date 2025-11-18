@@ -28,7 +28,7 @@ export const paperless = {
         form.set("file", params.file);
 
         // This will resolve to `${VITE_API_BASE || '/api'}/documents/upload`
-        return http<DocumentDto>("/documents/upload", {
+        return http<DocumentDto>("/documents", {
             method: "POST",
             body: form,
         });

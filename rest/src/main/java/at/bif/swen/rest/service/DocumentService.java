@@ -14,7 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.Resource;
 
+import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.*;
 
@@ -24,11 +26,13 @@ public class DocumentService {
 
 
     private final DocumentRepository docRepo;
-    private final FileStorageService storage;
+    private final StoragePort storage;
     private final DocumentMapper mapper;
 
     @Transactional
     public Document create(DocumentCreateRequest req) {
+
+        //Todo:
 
         Document d = Document.builder()
                 .title(req.title())
@@ -71,13 +75,15 @@ public class DocumentService {
     }
 
     @Transactional
-    public void delete(UUID id) {
+    public void delete(UUID id){
+        Document doc = get(id);
 
-        Document d = get(id);
-        docRepo.delete(d);
+        if(doc.getFilename() != null){
+            storage.delete(doc.getFilename());
+        }
+
+        docRepo.delete(doc);
     }
-
-//question: should this just be what create is up above?
 
     @Transactional
     public DocumentDto createFromUpload(String title, String summary, MultipartFile file) throws Exception {
@@ -87,8 +93,8 @@ public class DocumentService {
         Document doc = new Document();
         doc.setTitle(title);
         doc.setSummary((summary==null|| summary.isBlank()) ? null : summary.trim());
-        doc.setContentType(file.contentType());
-        doc.setSize(file.size());
+        doc.setContentType(file.getContentType());
+        doc.setSize(file.getSize());
         doc.setUploadedAt(OffsetDateTime.now());
         doc.setFilename(key);
 

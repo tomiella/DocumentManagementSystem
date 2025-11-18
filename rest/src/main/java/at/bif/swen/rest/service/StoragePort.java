@@ -10,4 +10,6 @@ public interface StoragePort {
     String store(MultipartFile file) throws IOException;
 
     Resource loadAsResource(String key) throws IOException;
+
+    void delete(String key);
 }

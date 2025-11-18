@@ -7,7 +7,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-//TODO import resource and urlresouce
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -59,5 +58,22 @@ public class FileStorageService implements StoragePort{
         }
 
         return new UrlResource(file.toUri());
+    }
+    @Override
+    public void delete(String key) {
+        if (key == null || key.isBlank()) {
+            return;
+        }
+
+        try {
+            Path root = Path.of(props.getUploadDir()).toAbsolutePath().normalize();
+            Path file = root.resolve(key).normalize();
+
+            if (Files.exists(file)) {
+                Files.delete(file);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to delete stored file: " + key, e);
+        }
     }
 }
