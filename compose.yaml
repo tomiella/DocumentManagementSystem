@@ -12,6 +12,16 @@ services:
       - "5432:5432"
     networks: [paperless]
 
+  rabbit:
+    image: rabbitmq:3.13-management
+    container_name: dms-rabbit
+    ports:
+      - "5672:5672" # AMQP
+      - "15672:15672" # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBIT_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBIT_PASS:-guest}
+
   api:
     build: ./rest
 #    container_name: api
@@ -29,6 +39,15 @@ services:
       - postgres
     ports: []
 #      - "8081:8081"
+      SPRING_RABBITMQ_HOST: rabbit
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: ${RABBIT_USER:-guest}
+      SPRING_RABBITMQ_PASSWORD: ${RABBIT_PASS:-guest}
+    depends_on:
+      - postgres
+      - rabbit
+    ports:
+      - "8080:8080"
     restart: unless-stopped
     networks: [paperless]
 
@@ -40,6 +59,16 @@ services:
       ports:
         - "80:80"
       networks: [paperless]
+
+  ocr-worker:
+    build: ./ocr-worker
+    environment:
+      RABBIT_HOST: rabbit
+      RABBIT_PORT: 5672
+      RABBIT_USER: ${RABBIT_USER:-guest}
+      RABBIT_PASS: ${RABBIT_PASS:-guest}
+    depends_on:
+      - rabbit
 
 volumes:
   pgdata:

@@ -1,0 +1,12 @@
+spring:
+  rabbitmq:
+    host: ${RABBIT_HOST:localhost}
+    port: ${RABBIT_PORT:5672}
+    username: ${RABBIT_USER:guest}
+    password: ${RABBIT_PASS:guest}
+  main:
+    banner-mode: off
+logging:
+  level:
+    root: info
+    org.springframework.amqp: info
