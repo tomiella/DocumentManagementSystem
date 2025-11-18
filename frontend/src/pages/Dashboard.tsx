@@ -1,50 +1,74 @@
-// placement E - Main Content
-
-import Table from '../components/Table';
-import {useEffect, useState} from "react";
-
-
-const rows = [ //NOTE: Currently just a placeholder
-    { date:'28.09.24', title:'Hematologie', tags:['scanned','info'], owner:'Max M.', access:'Private', comments:'…' },
-    { date:'15.12.24', title:'ESTA USA 2025', tags:['party'], owner:'Silvia M.', access:'Public', comments:'…' },
-    { date: '12.11.24', title: 'Visa Interview Prep', tags: ['travel', 'checklist'], owner: 'Silvia M.', access: 'Private', comments: 'Checklist for embassy visit' },
-    { date: '15.12.24', title: 'ESTA USA 2025', tags: ['party'], owner: 'Silvia M.', access: 'Public', comments: 'Confirmed with group, ready to go!' },
-    { date: '20.01.25', title: 'Packing List USA', tags: ['travel', 'essentials'], owner: 'Marco T.', access: 'Shared', comments: 'Need to buy adapter and meds' },
-    { date: '05.02.25', title: 'Flight Booking Details', tags: ['logistics'], owner: 'Silvia M.', access: 'Private', comments: 'Booked via Lufthansa, ref #A1234' },
-    { date: '10.03.25', title: 'Party Playlist NYC', tags: ['party', 'music'], owner: 'Lena R.', access: 'Public', comments: 'Added reggaeton and EDM tracks' }
-
-];
-
+import Table from "../components/Table";
+import { useEffect, useState } from "react";
+import { DocumentDto } from "../models/DocumentDto";
+import { paperless } from "../api/paperless";
 
 export default function Dashboard() {
-    const [userName,setUserName] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return sessionStorage.getItem("userName");
+  });
 
-    useEffect(() => {
-        const updateFromSession = () => setUserName(sessionStorage.getItem('userName'));
-        updateFromSession();
-        window.addEventListener('auth:changed', updateFromSession);
-        window.addEventListener('storage', updateFromSession);
-        return () => {
-            window.removeEventListener('auth:changed', updateFromSession);
-            window.removeEventListener('storage', updateFromSession);
-        };
-    }, []);
+  const [rows, setRows] = useState<DocumentDto[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    const updateFromSession = () =>
+      setUserName(sessionStorage.getItem("userName"));
 
-    return (
-        <div className="space-y-4 bg-bg ">
-            <h2 className="text-2xl font-semibold">
-                {userName? `Hello, ${userName}!`:
-                    `Hello Paperfriendly World!!`}
-            </h2>
+    window.addEventListener("auth:changed", updateFromSession);
 
-            <div className="grid grid-cols-2 gap-4">
-                <div className="bg-green-600 border rounded h-20" />
-                <div className="bg-green-900 border rounded h-20" />
-            </div>
-            <div className="w-full overflow-x-auto">
-                <Table rows={rows} />
-            </div>
-        </div>
-    );
+    const onStorage = (e: StorageEvent) => {
+      if (e.storageArea === sessionStorage) updateFromSession();
+    };
+    window.addEventListener("storage", onStorage);
+
+    return () => {
+      window.removeEventListener("auth:changed", updateFromSession);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, []);
+
+  useEffect(() => {
+    const ac = new AbortController();
+
+    const fetchRows = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await paperless.list();
+        if (!ac.signal.aborted) setRows(data);
+      } catch (e: any) {
+        if (!ac.signal.aborted)
+          setError(e?.message ?? "Failed to load documents");
+      } finally {
+        if (!ac.signal.aborted) setLoading(false);
+      }
+    };
+
+    fetchRows();
+    return () => ac.abort();
+  }, []);
+
+  return (
+    <div className="space-y-4 bg-bg">
+      <h2 className="text-2xl font-semibold">
+        {userName ? `Hello, ${userName}!` : `Hello Paperfriendly World!!`}
+      </h2>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="bg-green-600 border rounded h-20" />
+        <div className="bg-green-900 border rounded h-20" />
+      </div>
+
+      <div className="w-full overflow-x-auto">
+        {loading && (
+          <div className="p-4 text-sm text-gray-500">Loading documents…</div>
+        )}
+        {error && <div className="p-4 text-sm text-red-600">{error}</div>}
+        {!loading && !error && <Table rows={rows} />}
+      </div>
+    </div>
+  );
 }

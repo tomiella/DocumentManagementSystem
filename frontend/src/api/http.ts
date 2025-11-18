@@ -35,10 +35,17 @@ export async function http<T>(
 
   if (typeof methodOrInit === "string") {
     // Signature: http(path, 'POST', body)
-    init = {
-      method: methodOrInit,
-      body: body != null ? JSON.stringify(body) : undefined,
-    };
+    if (body != null && typeof body === "string") {
+      init = {
+        method: methodOrInit,
+        body: body != null ? body : undefined,
+      };
+    } else {
+      init = {
+        method: methodOrInit,
+        body: body != null ? JSON.stringify(body) : undefined,
+      };
+    }
   } else {
     // Signature: http(path, init?)
     init = methodOrInit ?? {};
