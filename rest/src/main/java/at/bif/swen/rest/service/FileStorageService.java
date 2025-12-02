@@ -2,7 +2,7 @@ package at.bif.swen.rest.service;
 
 import at.bif.swen.rest.config.StorageProperties;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.core.io.Resource;
@@ -14,21 +14,19 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
-@Service
+// @Service - Disabled in favor of MinioStorageService
 @RequiredArgsConstructor
-public class FileStorageService implements StoragePort{
+public class FileStorageService implements StoragePort {
 
     private final StorageProperties props;
 
     @Override
     public String store(MultipartFile file) throws IOException {
 
-
         String original = StringUtils.cleanPath(
                 file.getOriginalFilename() == null
                         ? "upload"
-                        : file.getOriginalFilename()
-        );
+                        : file.getOriginalFilename());
 
         String ext = original.contains(".")
                 ? original.substring(original.lastIndexOf("."))
@@ -39,26 +37,25 @@ public class FileStorageService implements StoragePort{
         Path root = Path.of(props.getUploadDir()).toAbsolutePath().normalize();
         Files.createDirectories(root);
 
-
         Path target = root.resolve(generated).normalize();
         Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
 
         return generated; // return only the key.
     }
 
-
     @Override
-    public Resource loadAsResource(String key) throws IOException{
+    public Resource loadAsResource(String key) throws IOException {
 
         Path uploadDirPath = Path.of(props.getUploadDir()).toAbsolutePath().normalize();
         Path file = uploadDirPath.resolve(key).normalize();
 
-        if(!Files.exists(file)){
-           throw new IOException("File not found" + key);
+        if (!Files.exists(file)) {
+            throw new IOException("File not found" + key);
         }
 
         return new UrlResource(file.toUri());
     }
+
     @Override
     public void delete(String key) {
         if (key == null || key.isBlank()) {

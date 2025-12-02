@@ -38,7 +38,7 @@ public class DocumentService {
     @Transactional
     public Document create(DocumentCreateRequest req) {
 
-        //Todo:
+        // Todo:
 
         Document d = Document.builder()
                 .title(req.title())
@@ -48,9 +48,10 @@ public class DocumentService {
                 .summary(req.summary())
                 .build();
 
-        Document saved =  documentRepository.save(d);
+        Document saved = documentRepository.save(d);
 
-        DocumentCreatedEvent evt = new DocumentCreatedEvent(saved.getId(), saved.getFilename(), saved.getContentType(), saved.getSize());
+        DocumentCreatedEvent evt = new DocumentCreatedEvent(saved.getId(), saved.getFilename(), saved.getContentType(),
+                saved.getSize());
         try {
             rabbit.setMessageConverter(new org.springframework.amqp.support.converter.Jackson2JsonMessageConverter());
             rabbit.convertAndSend(AmqpConfig.EXCHANGE, AmqpConfig.ROUTING_KEY, evt);
@@ -63,14 +64,12 @@ public class DocumentService {
         return saved;
     }
 
-
     @Transactional(readOnly = true)
     public Document get(UUID id) {
 
         return documentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Document not found: " + id));
     }
-
 
     @Transactional(readOnly = true)
     public List<Document> search(String title) {
@@ -86,17 +85,19 @@ public class DocumentService {
     public Document update(UUID id, DocumentUpdateRequest req) {
 
         Document d = get(id);
-        if (req.title() != null) d.setTitle(req.title());
-        if (req.summary() != null) d.setSummary(req.summary());
+        if (req.title() != null)
+            d.setTitle(req.title());
+        if (req.summary() != null)
+            d.setSummary(req.summary());
 
         return documentRepository.save(d);
     }
 
     @Transactional
-    public void delete(UUID id){
+    public void delete(UUID id) {
         Document doc = get(id);
 
-        if(doc.getFilename() != null){
+        if (doc.getFilename() != null) {
             storage.delete(doc.getFilename());
         }
 
@@ -104,13 +105,14 @@ public class DocumentService {
     }
 
     @Transactional
-    public DocumentDto createFromUpload(String title, String summary, MultipartFile file) throws Exception {
+    public Document createFromUpload(String title, String summary, MultipartFile file) throws Exception {
 
         String key = storage.store(file);
+        log.info("Stored file {} with key {}", file.getOriginalFilename(), key);
 
         Document doc = new Document();
         doc.setTitle(title);
-        doc.setSummary((summary==null|| summary.isBlank()) ? null : summary.trim());
+        doc.setSummary((summary == null || summary.isBlank()) ? null : summary.trim());
         doc.setContentType(file.getContentType());
         doc.setSize(file.getSize());
         doc.setUploadedAt(OffsetDateTime.now());
@@ -118,7 +120,18 @@ public class DocumentService {
 
         doc = documentRepository.save(doc);
 
-        return mapper.toDto(doc);
+        // Publish event
+        DocumentCreatedEvent evt = new DocumentCreatedEvent(doc.getId(), doc.getFilename(), doc.getContentType(),
+                doc.getSize());
+        try {
+            rabbit.setMessageConverter(new org.springframework.amqp.support.converter.Jackson2JsonMessageConverter());
+            rabbit.convertAndSend(AmqpConfig.EXCHANGE, AmqpConfig.ROUTING_KEY, evt);
+            log.info("Published DocumentCreatedEvent id={} filename={}", doc.getId(), doc.getFilename());
+        } catch (Exception e) {
+            log.error("Failed to publish DocumentCreatedEvent id={} reason={}", doc.getId(), e.toString(), e);
+        }
+
+        return doc;
     }
 
     @Transactional(readOnly = true)

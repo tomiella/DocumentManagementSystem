@@ -4,13 +4,7 @@ import type { DocumentDto } from "../models/DocumentDto";
 
 export type UploadParams = {
   title: string;
-  summary?: string;
   file: File;
-  fileType?: string;
-  contentType?: string;
-  ocr?: boolean;
-  aiSummary?: boolean;
-  publicAccess?: boolean;
 };
 
 export type CreateParams = {
@@ -34,16 +28,16 @@ export const paperless = {
     const form = new FormData();
     form.set("title", params.title);
 
-    if (params.summary) form.set("summary", params.summary);
-    if (params.fileType) form.set("fileType", params.fileType);
-    if (params.contentType) form.set("contentType", params.contentType);
-    if (params.ocr) form.set("ocr", "true");
-    if (params.aiSummary) form.set("aiSummary", "true");
-    if (params.publicAccess) form.set("publicAccess", "true");
+    // if (params.summary) form.set("summary", params.summary);
+    // if (params.fileType) form.set("fileType", params.fileType);
+    // if (params.contentType) form.set("contentType", params.contentType);
+    // if (params.ocr) form.set("ocr", "true");
+    // if (params.aiSummary) form.set("aiSummary", "true");
+    // if (params.publicAccess) form.set("publicAccess", "true");
     form.set("file", params.file);
 
     // This will resolve to `${VITE_API_BASE || '/api'}/documents/upload`
-    return http<DocumentDto>("/documents", {
+    return http<DocumentDto>("/documents/upload", {
       method: "POST",
       body: form,
     });
@@ -63,5 +57,20 @@ export const paperless = {
     const base = "http://localhost:8080";
     return `${base}/documents/${id}/file`;
   },
-};
 
+  async update(
+    id: string,
+    data: { title?: string; summary?: string }
+  ): Promise<DocumentDto> {
+    return http<DocumentDto>(`/documents/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
+  },
+
+  async delete(id: string): Promise<void> {
+    return http<void>(`/documents/${id}`, {
+      method: "DELETE",
+    });
+  },
+};

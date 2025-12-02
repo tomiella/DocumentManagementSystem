@@ -63,31 +63,9 @@ export default function UploadView() {
                     <textarea
                         className="bg-bg border rounded px-3 py-2 col-span-2"
                         name="summary"
-                        placeholder="Summary"
+                        placeholder="Summary (optional)"
                         rows={3}
                     />
-                    <select className="bg-bg border rounded px-3 py-2 col-span-2"
-                            name="fileType"
-                            defaultValue=""
-                    >
-                        {/*TODO: add options from backend*/}
-                    <option value="">Select File Type</option>
-                        <option value="pdf">PDF</option>
-                        <option value="doc">DOC</option>
-                        <option value="docx">DOCX</option>
-                        <option value="txt">TXT</option>
-                        <option value="image">Image</option>
-                        <option value="other">Other</option>
-                        <option value="excel">Excel</option>
-                        <option value="ppt">PPT</option>
-
-                    </select>
-
-                    <input
-                        className="bg-bg border rounded px-3 py-2 col-span-2"
-                        name="contentType"
-                        placeholder="Content Type (e.g., application/pdf)"
-                        />
                 </div>
 
                 {error && (
@@ -100,18 +78,6 @@ export default function UploadView() {
                         {success}
                     </div>
                 )}
-
-                <div className="flex items-center gap-6 pt-2">
-                    <label className="flex items-center gap-2 text-sm">
-                        <input type="checkbox" name="ocr" value="true" /> OCR Scan
-                    </label>
-                    <label className="flex items-center gap-2 text-sm">
-                        <input type="checkbox" name="aiSummary" value="true" /> Generate AI Summary
-                    </label>
-                    <label className="flex items-center gap-2 text-sm">
-                        <input type="checkbox" name="publicAccess" value="true" /> Public access
-                    </label>
-                </div>
             </form>
         </div>
     );

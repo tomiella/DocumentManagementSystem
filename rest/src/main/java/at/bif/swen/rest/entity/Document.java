@@ -12,7 +12,11 @@ import java.util.UUID;
 @Table(name = "documents", indexes = {
         @Index(name = "ix_documents_title", columnList = "title")
 })
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Document {
 
     @Id
@@ -37,9 +41,14 @@ public class Document {
     @Column(columnDefinition = "text")
     private String summary;
 
+    @Column(columnDefinition = "text")
+    private String ocrText;
+
     @PrePersist
     public void prePersist() {
-        if (id == null) id = UUID.randomUUID();
-        if (uploadedAt == null) uploadedAt = OffsetDateTime.now();
+        if (id == null)
+            id = UUID.randomUUID();
+        if (uploadedAt == null)
+            uploadedAt = OffsetDateTime.now();
     }
 }

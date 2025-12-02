@@ -129,7 +129,7 @@ export default function UserMenu() {
               </div>
               {USE_MOCK_AUTH && (
                 <div className="text-xs text-gray-500">
-                  Demo creds: <code>demo</code> / <code>demo12345</code>
+                  Demo creds: <code>admin</code> / <code>admin</code>
                 </div>
               )}
               {error && (

@@ -6,4 +6,5 @@ export type DocumentDto = {
     size: number;
     updatedAt: string
     summary?: string | null;
+    ocrText?: string | null;
 }
