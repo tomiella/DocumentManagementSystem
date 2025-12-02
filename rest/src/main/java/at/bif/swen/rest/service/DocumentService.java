@@ -104,7 +104,7 @@ public class DocumentService {
     }
 
     @Transactional
-    public DocumentDto createFromUpload(String title, String summary, MultipartFile file) throws Exception {
+    public Document createFromUpload(String title, String summary, MultipartFile file) throws Exception {
 
         String key = storage.store(file);
 
@@ -118,7 +118,7 @@ public class DocumentService {
 
         doc = documentRepository.save(doc);
 
-        return mapper.toDto(doc);
+        return doc;
     }
 
     @Transactional(readOnly = true)

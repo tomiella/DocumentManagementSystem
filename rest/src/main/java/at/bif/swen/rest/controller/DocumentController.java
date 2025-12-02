@@ -70,14 +70,12 @@ public class DocumentController {
             // Upload the file to MinIO
             minioStorageService.upload(objectName, file);
 
-            // Create a new Document entity in the database
-            DocumentCreateRequest req = new DocumentCreateRequest();
-            req.setTitle(title);
-            req.setFilename(file.getOriginalFilename());
-            req.setContentType(file.getContentType());
-            req.setObjectName(objectName); // Assuming you have this field in your entity
+//            // Create a new Document entity in the database
+//            DocumentCreateRequest req = new DocumentCreateRequest(title, file.getOriginalFilename(), file.getContentType(), objectName);
+//
+//            Document savedDocument = documentService.create(req);
 
-            Document savedDocument = documentService.create(req);
+            Document savedDocument = documentService.createFromUpload(title, "", file);
 
             // Return the created document details
             return ResponseEntity
