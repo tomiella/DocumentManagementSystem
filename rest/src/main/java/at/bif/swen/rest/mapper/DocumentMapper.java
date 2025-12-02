@@ -4,12 +4,12 @@ import at.bif.swen.rest.dto.DocumentDto;
 import at.bif.swen.rest.entity.Document;
 import org.springframework.stereotype.Component;
 
-
 @Component
 public class DocumentMapper {
 
     public DocumentDto toDto(Document d) {
-        if (d == null) return null;
+        if (d == null)
+            return null;
         return new DocumentDto(
                 d.getId(),
                 d.getTitle(),
@@ -17,8 +17,7 @@ public class DocumentMapper {
                 d.getContentType(),
                 d.getSize(),
                 d.getUploadedAt(),
-                d.getSummary()
-        );
+                d.getSummary(),
+                d.getOcrText());
     }
 }
-

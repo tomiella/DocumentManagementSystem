@@ -7,14 +7,11 @@ import at.bif.swen.rest.dto.DocumentUpdateRequest;
 import at.bif.swen.rest.entity.Document;
 import at.bif.swen.rest.mapper.DocumentMapper;
 import at.bif.swen.rest.service.DocumentService;
-import at.bif.swen.rest.service.MinioStorageService;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.HttpHeaders;
@@ -23,7 +20,6 @@ import org.springframework.http.MediaType;
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
-import java.io.IOException;
 
 @RestController
 @RequestMapping("/documents")
@@ -31,14 +27,13 @@ import java.io.IOException;
 public class DocumentController {
 
     private final DocumentService documentService;
-    private final MinioStorageService minioStorageService;
     private final DocumentMapper mapper;
 
     @PostMapping
     public ResponseEntity<DocumentDto> create(@Valid @RequestBody DocumentCreateRequest req) {
         Document saved = documentService.create(req);
         return ResponseEntity
-                .created(URI.create("/documents/" + saved.getId()))
+                .created(java.util.Objects.requireNonNull(URI.create("/documents/" + saved.getId())))
                 .body(mapper.toDto(saved));
     }
 
@@ -64,17 +59,9 @@ public class DocumentController {
             @RequestParam("file") MultipartFile file,
             @RequestParam("title") String title) {
         try {
-            // Generate a unique object name for the file
-            String objectName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-
-            // Upload the file to MinIO
-            minioStorageService.upload(objectName, file);
-
-//            // Create a new Document entity in the database
-//            DocumentCreateRequest req = new DocumentCreateRequest(title, file.getOriginalFilename(), file.getContentType(), objectName);
-//
-//            Document savedDocument = documentService.create(req);
-
+            // Create a new Document entity in the database
+            // The service handles storage via StoragePort (which is now
+            // MinioStorageService)
             Document savedDocument = documentService.createFromUpload(title, "", file);
 
             // Return the created document details

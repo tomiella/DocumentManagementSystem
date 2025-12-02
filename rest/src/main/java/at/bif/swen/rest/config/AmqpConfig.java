@@ -11,14 +11,33 @@ public class AmqpConfig {
     public static final String ROUTING_KEY = "documents.created";
     public static final String QUEUE = "dms.ocr.queue";
 
-    @Bean
-    TopicExchange documentExchange() { return new TopicExchange(EXCHANGE, true, false); }
+    public static final String RESULT_ROUTING_KEY = "ocr.result";
+    public static final String RESULT_QUEUE = "dms.ocr.result.queue";
 
     @Bean
-    Queue ocrQueue() { return QueueBuilder.durable(QUEUE).build(); }
+    TopicExchange documentExchange() {
+        return new TopicExchange(EXCHANGE, true, false);
+    }
 
     @Bean
-    Binding ocrBinding() { return BindingBuilder.bind(ocrQueue()).to(documentExchange()).with(ROUTING_KEY); }
+    Queue ocrQueue() {
+        return QueueBuilder.durable(QUEUE).build();
+    }
+
+    @Bean
+    Binding ocrBinding() {
+        return BindingBuilder.bind(ocrQueue()).to(documentExchange()).with(ROUTING_KEY);
+    }
+
+    @Bean
+    Queue ocrResultQueue() {
+        return QueueBuilder.durable(RESULT_QUEUE).build();
+    }
+
+    @Bean
+    Binding ocrResultBinding() {
+        return BindingBuilder.bind(ocrResultQueue()).to(documentExchange()).with(RESULT_ROUTING_KEY);
+    }
 
     @Bean
     Jackson2JsonMessageConverter jackson2JsonMessageConverter(com.fasterxml.jackson.databind.ObjectMapper om) {

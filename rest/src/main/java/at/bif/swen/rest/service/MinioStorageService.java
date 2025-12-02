@@ -1,18 +1,19 @@
 package at.bif.swen.rest.service;
 
 import at.bif.swen.rest.config.MinioProperties;
-import io.minio.BucketExistsArgs;
-import io.minio.MakeBucketArgs;
-import io.minio.MinioClient;
-import io.minio.PutObjectArgs;
-import io.minio.errors.MinioException;
+import io.minio.*;
+import org.springframework.context.annotation.Primary;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.util.UUID;
 
 @Service
-public class MinioStorageService {
+@Primary
+public class MinioStorageService implements StoragePort {
 
     private final MinioClient minioClient;
     private final MinioProperties properties;
@@ -22,13 +23,17 @@ public class MinioStorageService {
         this.properties = properties;
     }
 
-    public void upload(String objectName, MultipartFile file) {
+    @Override
+    public String store(MultipartFile file) {
         try (InputStream is = file.getInputStream()) {
-
-
-
             // Ensure bucket exists with Retry
             ensureBucketExistsWithRetry();
+
+            String objectName = UUID.randomUUID().toString();
+            String originalFilename = file.getOriginalFilename();
+            if (originalFilename != null && originalFilename.contains(".")) {
+                objectName += originalFilename.substring(originalFilename.lastIndexOf("."));
+            }
 
             // Upload the file
             minioClient.putObject(
@@ -39,15 +44,44 @@ public class MinioStorageService {
                             .contentType(file.getContentType())
                             .build());
 
-        } catch (MinioException e) {
-            throw new RuntimeException("Error uploading to MinIO", e);
+            return objectName;
+
         } catch (Exception e) {
-            throw new RuntimeException("Unexpected error during MinIO upload", e);
+            throw new RuntimeException("Error uploading to MinIO", e);
         }
     }
 
+    @Override
+    public Resource loadAsResource(String key) {
+        try {
+            InputStream stream = minioClient.getObject(
+                    GetObjectArgs.builder()
+                            .bucket(properties.getBucket())
+                            .object(key)
+                            .build());
 
-// Question: move this to a separate class? ==> do it as an initial step in the application startup??
+            if (stream == null) {
+                throw new RuntimeException("MinIO returned null stream for key: " + key);
+            }
+            return new InputStreamResource(stream);
+        } catch (Exception e) {
+            throw new RuntimeException("Error loading from MinIO", e);
+        }
+    }
+
+    @Override
+    public void delete(String key) {
+        try {
+            minioClient.removeObject(
+                    RemoveObjectArgs.builder()
+                            .bucket(properties.getBucket())
+                            .object(key)
+                            .build());
+        } catch (Exception e) {
+            throw new RuntimeException("Error deleting from MinIO", e);
+        }
+    }
+
     private void ensureBucketExistsWithRetry() {
         int maxAttempts = 3;
         long backoffMillis = 1000; // 1 second initial backoff
@@ -57,15 +91,13 @@ public class MinioStorageService {
                 boolean found = minioClient.bucketExists(
                         BucketExistsArgs.builder()
                                 .bucket(properties.getBucket())
-                                .build()
-                );
+                                .build());
 
                 if (!found) {
                     minioClient.makeBucket(
                             MakeBucketArgs.builder()
                                     .bucket(properties.getBucket())
-                                    .build()
-                    );
+                                    .build());
                 }
 
                 // success -> just return
@@ -76,11 +108,9 @@ public class MinioStorageService {
                     // after 3 tries, give up
                     throw new RuntimeException(
                             "Failed to ensure MinIO bucket " + properties.getBucket()
-                                    + " exists after " + maxAttempts + " attempts", e);
+                                    + " exists after " + maxAttempts + " attempts",
+                            e);
                 }
-
-                // optional logging
-                // log.warn("Attempt {}/{} to ensure MinIO bucket failed, retrying...", attempt, maxAttempts, e);
 
                 try {
                     Thread.sleep(backoffMillis * attempt); // simple linear backoff
