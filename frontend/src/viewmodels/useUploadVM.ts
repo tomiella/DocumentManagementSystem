@@ -28,20 +28,7 @@ export function useUploadVM() {
     const form = new FormData(e.currentTarget);
 
     const title = String(form.get("title") || "").trim();
-    const summaryRaw = String(form.get("summary") || "").trim();
-    const summary = summaryRaw || "";
-
-    /*Question: Ommit choices for fileType and contentType?*/
-    const fileTypeRaw = String(form.get("fileType") || "").trim();
-    const contentTypeRaw = String(form.get("contentType") || "").trim();
-
-    const fileType = fileTypeRaw || undefined;
-    const contentType = contentTypeRaw || "";
-
-    /*Flag: Opration for OCR, AI Summary  and Public Access*/
-    const ocr = form.get("ocr") === "true";
-    const aiSummary = form.get("aiSummary") === "true";
-    const publicAccess = form.get("publicAccess") === "true";
+    const summary = String(form.get("summary") || "").trim();
 
     if (!file || file.size === 0) {
       setError("No file selected - please select a file to upload.");
@@ -53,7 +40,6 @@ export function useUploadVM() {
       return;
     }
 
-    /*Info: Submitting the form calls the upload function*/
     setSubmitting(true);
     try {
       await paperless.upload({

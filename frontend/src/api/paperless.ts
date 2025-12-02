@@ -57,4 +57,20 @@ export const paperless = {
     const base = "http://localhost:8080";
     return `${base}/documents/${id}/file`;
   },
+
+  async update(
+    id: string,
+    data: { title?: string; summary?: string }
+  ): Promise<DocumentDto> {
+    return http<DocumentDto>(`/documents/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
+  },
+
+  async delete(id: string): Promise<void> {
+    return http<void>(`/documents/${id}`, {
+      method: "DELETE",
+    });
+  },
 };
