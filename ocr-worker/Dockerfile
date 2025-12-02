@@ -6,8 +6,18 @@ RUN mvn -q -B -DskipTests dependency:go-offline
 COPY src ./src
 RUN mvn -q -B -DskipTests package
 
-FROM eclipse-temurin:21-jre-jammy
+FROM eclipse-temurin:21-jre-noble
 WORKDIR /app
+
+RUN apt-get update && apt-get install -y \
+    tesseract-ocr \
+    libtesseract-dev \
+    ghostscript \
+    tesseract-ocr-eng \
+    tesseract-ocr-deu \
+    poppler-utils \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /app/target/*-SNAPSHOT.jar /app/app.jar
 
