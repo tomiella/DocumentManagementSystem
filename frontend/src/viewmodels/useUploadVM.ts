@@ -56,12 +56,9 @@ export function useUploadVM() {
     /*Info: Submitting the form calls the upload function*/
     setSubmitting(true);
     try {
-      await paperless.create({
+      await paperless.upload({
         title,
-        summary: summary,
-        contentType,
-        filename: file.name,
-        size: file.size,
+        file,
       });
 
       setSuccess("File uploaded successfully.");

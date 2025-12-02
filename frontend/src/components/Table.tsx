@@ -13,6 +13,7 @@ export default function Table({ rows }: { rows: any[] }) {
                 size: "",
                 updatedAt: "",
                 summary: "",
+                ocrText: "",
               },
             ).map((h) => (
               <th
@@ -30,9 +31,21 @@ export default function Table({ rows }: { rows: any[] }) {
               key={i}
               className="odd:bg-emerald-950 text-gray-100 even:bg-gray-950 text-gray-400"
             >
-              {Object.values(r).map((v, j) => (
+              {Object.entries(r).map(([key, v], j) => (
                 <td key={j} className="px-3 py-2 border-b align-top">
-                  {Array.isArray(v) ? v.join(", ") : String(v)}
+                  {key === 'ocrText' || key === 'summary' ? (
+                    <div className="max-w-md">
+                      <div className="line-clamp-3 text-xs" title={String(v || '')}>
+                        {v ? String(v) : (
+                          <span className="text-gray-500 italic">
+                            {key === 'ocrText' ? 'No OCR text yet' : 'No summary'}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    Array.isArray(v) ? v.join(", ") : String(v)
+                  )}
                 </td>
               ))}
             </tr>
