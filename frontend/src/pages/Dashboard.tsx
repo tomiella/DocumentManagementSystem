@@ -1,5 +1,6 @@
 import Table from "../components/Table";
 import EditModal from "../components/EditModal";
+import OcrTextModal from "../components/OcrTextModal";
 import { useEffect, useState } from "react";
 import { DocumentDto } from "../models/DocumentDto";
 import { paperless } from "../api/paperless";
@@ -14,6 +15,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [editingDocument, setEditingDocument] = useState<DocumentDto | null>(null);
+  const [viewingOcrDocument, setViewingOcrDocument] = useState<DocumentDto | null>(null);
 
   useEffect(() => {
     const updateFromSession = () =>
@@ -99,6 +101,10 @@ export default function Dashboard() {
     setEditingDocument(doc);
   };
 
+  const handleViewOcr = (doc: DocumentDto) => {
+    setViewingOcrDocument(doc);
+  };
+
   const handleSaveEdit = async (
     id: string,
     data: { title: string; summary: string }
@@ -113,35 +119,77 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="space-y-4 bg-bg">
-      <h2 className="text-2xl font-semibold">
-        {userName ? `Hello, ${userName}!` : `Hello Paperfriendly World!!`}
-      </h2>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-green-600 border rounded h-20" />
-        <div className="bg-green-900 border rounded h-20" />
+    <div className="space-y-6 p-4 md:p-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h2 className="text-2xl md:text-3xl font-semibold text-gray-100">
+          {userName ? `Hello, ${userName}!` : `Document Dashboard`}
+        </h2>
+        <div className="flex items-center gap-2 text-sm text-gray-400">
+          <span>{rows.length} document{rows.length !== 1 ? 's' : ''}</span>
+        </div>
       </div>
 
-      <div className="w-full overflow-x-auto">
+      {/* Stats Cards - Optional, can be removed if not needed */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-gradient-to-br from-blue-900 to-blue-800 border border-blue-700 rounded-lg p-4">
+          <div className="text-sm text-blue-200">Total Documents</div>
+          <div className="text-2xl font-bold text-white mt-1">{rows.length}</div>
+        </div>
+        <div className="bg-gradient-to-br from-green-900 to-green-800 border border-green-700 rounded-lg p-4">
+          <div className="text-sm text-green-200">With OCR</div>
+          <div className="text-2xl font-bold text-white mt-1">
+            {rows.filter(r => r.ocrText).length}
+          </div>
+        </div>
+        <div className="bg-gradient-to-br from-purple-900 to-purple-800 border border-purple-700 rounded-lg p-4 hidden sm:block">
+          <div className="text-sm text-purple-200">With Summary</div>
+          <div className="text-2xl font-bold text-white mt-1">
+            {rows.filter(r => r.summary).length}
+          </div>
+        </div>
+        <div className="bg-gradient-to-br from-orange-900 to-orange-800 border border-orange-700 rounded-lg p-4 hidden lg:block">
+          <div className="text-sm text-orange-200">Total Size</div>
+          <div className="text-2xl font-bold text-white mt-1">
+            {(rows.reduce((sum, r) => sum + (r.size || 0), 0) / (1024 * 1024)).toFixed(1)} MB
+          </div>
+        </div>
+      </div>
+
+      {/* Documents Table */}
+      <div className="w-full">
         {loading && (
-          <div className="p-4 text-sm text-gray-500">Loading documents…</div>
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            <p className="mt-2 text-sm text-gray-400">Loading documents…</p>
+          </div>
         )}
-        {error && <div className="p-4 text-sm text-red-600">{error}</div>}
+        {error && (
+          <div className="bg-red-900/20 border border-red-700 rounded-lg p-4 text-red-400">
+            {error}
+          </div>
+        )}
         {!loading && !error && (
           <Table
             rows={rows}
             onDownload={handleDownload}
             onDelete={handleDelete}
             onEdit={handleEdit}
+            onViewOcr={handleViewOcr}
           />
         )}
       </div>
 
+      {/* Modals */}
       <EditModal
         document={editingDocument}
         onClose={() => setEditingDocument(null)}
         onSave={handleSaveEdit}
+      />
+
+      <OcrTextModal
+        document={viewingOcrDocument}
+        onClose={() => setViewingOcrDocument(null)}
       />
     </div>
   );
