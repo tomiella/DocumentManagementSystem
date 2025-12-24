@@ -20,6 +20,7 @@ public class OcrConsumer {
     private static final Logger log = LoggerFactory.getLogger(OcrConsumer.class);
     private final MinioService minioService;
     private final org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate;
+    private final at.bif.swen.ocrworker.service.GenAiService genAiService;
 
     @RabbitListener(queues = AmqpConfig.QUEUE)
     public void onDocument(DocumentCreatedEvent evt) {
@@ -41,7 +42,10 @@ public class OcrConsumer {
 
             log.info("OCR Result for {}: {}", evt.filename(), result);
 
-            OcrResultEvent resultEvent = new OcrResultEvent(evt.id(), result);
+            String summary = genAiService.summarize(result);
+            log.info("Summary for document id={}: {}", evt.id(), summary);
+
+            OcrResultEvent resultEvent = new OcrResultEvent(evt.id(), result, summary);
             rabbitTemplate.convertAndSend(AmqpConfig.EXCHANGE, AmqpConfig.RESULT_ROUTING_KEY, resultEvent);
             log.info("Published OCR result for document id={}", evt.id());
 

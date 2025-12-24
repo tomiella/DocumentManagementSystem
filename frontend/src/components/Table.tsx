@@ -22,7 +22,7 @@ export default function Table({
     { key: "contentType", label: "Type", className: "min-w-[100px] hidden lg:table-cell" },
     { key: "size", label: "Size", className: "hidden lg:table-cell" },
     { key: "updatedAt", label: "Updated", className: "min-w-[100px] hidden sm:table-cell" },
-    { key: "summary", label: "Summary", className: "min-w-[200px] hidden xl:table-cell" },
+    { key: "summary", label: "Summary", className: "min-w-[150px] hidden md:table-cell" },
     { key: "ocrText", label: "OCR Text", className: "min-w-[200px]" },
   ];
 

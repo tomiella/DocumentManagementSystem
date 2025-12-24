@@ -28,7 +28,7 @@ export function useUploadVM() {
     const form = new FormData(e.currentTarget);
 
     const title = String(form.get("title") || "").trim();
-    const summary = String(form.get("summary") || "").trim();
+
 
     if (!file || file.size === 0) {
       setError("No file selected - please select a file to upload.");
@@ -40,6 +40,8 @@ export function useUploadVM() {
       return;
     }
 
+    const formElement = e.currentTarget;
+
     setSubmitting(true);
     try {
       await paperless.upload({
@@ -48,13 +50,17 @@ export function useUploadVM() {
       });
 
       setSuccess("File uploaded successfully.");
-      e.currentTarget.reset();
+      formElement.reset();
 
       setFileName("");
       setFile(null);
     } catch (err) {
       console.error("Upload failed:", err);
-      setError("Upload failed. Please try again.");
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Upload failed. Please try again.");
+      }
     } finally {
       setSubmitting(false);
     }

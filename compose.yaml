@@ -90,6 +90,7 @@ services:
 
   ocr-worker:
     build: ./ocr-worker
+    env_file: .env
     environment:
       RABBIT_HOST: rabbit
       RABBIT_PORT: 5672
@@ -101,6 +102,7 @@ services:
       MINIO_ACCESS_KEY: minioAdmin
       MINIO_SECRET_KEY: minioPassword123
       MINIO_BUCKET: documents
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
 
     depends_on:
       - rabbit

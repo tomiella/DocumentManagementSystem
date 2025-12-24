@@ -20,7 +20,7 @@ export default function OcrTextModal({ document, onClose }: OcrTextModalProps) {
                 <div className="flex justify-between items-start mb-4">
                     <div>
                         <h3 className="text-xl font-semibold text-gray-100">
-                            OCR Text
+                            Document Content
                         </h3>
                         <p className="text-sm text-gray-400 mt-1">{document.title}</p>
                     </div>
@@ -32,14 +32,26 @@ export default function OcrTextModal({ document, onClose }: OcrTextModalProps) {
                     </button>
                 </div>
 
-                <div className="flex-1 overflow-auto bg-gray-800 rounded p-4 border border-gray-700">
-                    {document.ocrText ? (
-                        <pre className="text-sm text-gray-200 whitespace-pre-wrap font-mono">
-                            {document.ocrText}
-                        </pre>
-                    ) : (
-                        <p className="text-gray-500 italic">No OCR text available for this document.</p>
+                <div className="flex-1 overflow-auto bg-gray-800 rounded p-4 border border-gray-700 space-y-4">
+                    {document.summary && (
+                        <div className="mb-4 pb-4 border-b border-gray-700">
+                            <h4 className="text-sm font-semibold text-gray-400 mb-2 uppercase tracking-wide">Summary</h4>
+                            <p className="text-gray-200 text-base leading-relaxed">
+                                {document.summary}
+                            </p>
+                        </div>
                     )}
+
+                    <div>
+                        <h4 className="text-sm font-semibold text-gray-400 mb-2 uppercase tracking-wide">OCR Content</h4>
+                        {document.ocrText ? (
+                            <pre className="text-sm text-gray-200 whitespace-pre-wrap font-mono">
+                                {document.ocrText}
+                            </pre>
+                        ) : (
+                            <p className="text-gray-500 italic">No OCR text available.</p>
+                        )}
+                    </div>
                 </div>
 
                 <div className="mt-4 flex justify-end">

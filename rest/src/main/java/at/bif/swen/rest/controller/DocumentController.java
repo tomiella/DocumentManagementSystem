@@ -57,12 +57,13 @@ public class DocumentController {
     @PostMapping("/upload")
     public ResponseEntity<?> upload(
             @RequestParam("file") MultipartFile file,
-            @RequestParam("title") String title) {
+            @RequestParam("title") String title,
+            @RequestParam(value = "summary", required = false) String summary) {
         try {
             // Create a new Document entity in the database
             // The service handles storage via StoragePort (which is now
             // MinioStorageService)
-            Document savedDocument = documentService.createFromUpload(title, "", file);
+            Document savedDocument = documentService.createFromUpload(title, summary, file);
 
             // Return the created document details
             return ResponseEntity

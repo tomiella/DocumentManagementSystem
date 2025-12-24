@@ -29,6 +29,7 @@ public class OcrResultConsumer {
         documentRepository.findById(docId).ifPresentOrElse(
                 document -> {
                     document.setOcrText(evt.ocrText());
+                    document.setSummary(evt.summary());
                     documentRepository.save(document);
                     log.info("Updated document id={} with OCR text", docId);
                 },

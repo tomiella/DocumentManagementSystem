@@ -60,12 +60,6 @@ export default function UploadView() {
                         name="title"
                         placeholder="Title"
                     />
-                    <textarea
-                        className="bg-bg border rounded px-3 py-2 col-span-2"
-                        name="summary"
-                        placeholder="Summary (optional)"
-                        rows={3}
-                    />
                 </div>
 
                 {error && (
