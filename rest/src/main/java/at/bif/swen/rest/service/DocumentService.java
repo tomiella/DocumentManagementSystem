@@ -34,6 +34,7 @@ public class DocumentService {
     private final DocumentRepository documentRepository;
     private final RabbitTemplate rabbit;
     private static final Logger log = LoggerFactory.getLogger(DocumentService.class);
+    private final SearchService searchService;
 
     @Transactional
     public Document create(DocumentCreateRequest req) {
@@ -73,12 +74,41 @@ public class DocumentService {
 
     @Transactional(readOnly = true)
     public List<Document> search(String title) {
+        /*
+         * if (title != null && !title.isBlank()) {
+         * return documentRepository.findByTitleContainingIgnoreCase(title.trim());
+         * }
+         * 
+         * return documentRepository.findAll();
+         */
 
-        if (title != null && !title.isBlank()) {
-            return documentRepository.findByTitleContainingIgnoreCase(title.trim());
+        if (title == null || title.isBlank()) {
+            return documentRepository.findAll();
         }
 
-        return documentRepository.findAll();
+        String query = title.trim();
+
+        List<UUID> ids = searchService.searchIds(query);
+        if (ids.isEmpty()) {
+            // fallback if ES not ready or no index yet
+            return documentRepository.findByTitleContainingIgnoreCase(query);
+        }
+
+        List<Document> docs = documentRepository.findAllById(ids);
+
+        Map<UUID, Document> mapById = new HashMap<>();
+        for (Document d : docs)
+            mapById.put(d.getId(), d);
+
+        List<Document> ordered = new ArrayList<>();
+        for (UUID id : ids) {
+            Document d = mapById.get(id);
+            if (d != null)
+                ordered.add(d);
+        }
+
+        return ordered;
+
     }
 
     @Transactional
@@ -87,10 +117,14 @@ public class DocumentService {
         Document d = get(id);
         if (req.title() != null)
             d.setTitle(req.title());
+
         if (req.summary() != null)
             d.setSummary(req.summary());
 
-        return documentRepository.save(d);
+        Document saved = documentRepository.save(d);
+        searchService.updateTitleSummary(saved);
+
+        return saved;
     }
 
     @Transactional
@@ -102,6 +136,7 @@ public class DocumentService {
         }
 
         documentRepository.delete(doc);
+        searchService.deleteById(id);
     }
 
     @Transactional
@@ -119,6 +154,7 @@ public class DocumentService {
         doc.setFilename(key);
 
         doc = documentRepository.save(doc);
+        searchService.indexUploadedFile(doc, file);
 
         // Publish event
         DocumentCreatedEvent evt = new DocumentCreatedEvent(doc.getId(), doc.getFilename(), doc.getContentType(),

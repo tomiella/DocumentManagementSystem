@@ -23,6 +23,8 @@ services:
       RABBITMQ_DEFAULT_PASS: guest
     networks: [paperless]
 
+
+
   # ---- MinIO - Datastorage -----
   minio:
     image: minio/minio:latest
@@ -43,6 +45,35 @@ services:
       interval: 30s
       timeout: 20s
       retries: 3
+    restart: unless-stopped
+    networks: [paperless]
+
+  # ---- Elasticsearch + Kibana (ELK) -----
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.14.3
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-XX:UseSVE=0
+      - CLI_JAVA_OPTS=-XX:UseSVE=0
+      - bootstrap.memory_lock=false
+    ports:
+      - "9200:9200"
+    volumes:
+      - "esdata:/usr/share/elasticsearch/data"
+    restart: unless-stopped
+    networks: [paperless]
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.14.3
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    ports:
+      - "5601:5601"
     restart: unless-stopped
     networks: [paperless]
 
@@ -70,6 +101,8 @@ services:
       MINIO_ACCESS_KEY: minioAdmin
       MINIO_SECRET_KEY: minioPassword123
       MINIO_BUCKET: documents
+      # Elasticsearch
+      ELASTICSEARCH_HOST: elasticsearch
     depends_on:
       - postgres
       - rabbit
@@ -102,6 +135,7 @@ services:
       MINIO_ACCESS_KEY: minioAdmin
       MINIO_SECRET_KEY: minioPassword123
       MINIO_BUCKET: documents
+      ELASTICSEARCH_HOST: elasticsearch
       GEMINI_API_KEY: ${GEMINI_API_KEY}
 
     depends_on:
@@ -114,6 +148,7 @@ volumes:
   pgdata:
   #  uploads:
   minio-data:
+  esdata:
 
 networks:
   paperless:

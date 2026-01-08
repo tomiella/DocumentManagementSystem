@@ -53,6 +53,10 @@ export const paperless = {
     return http<DocumentDto[]>(`/documents`);
   },
 
+  async search(query: string): Promise<DocumentDto[]> {
+    return http<DocumentDto[]>(`/api/search?q=${encodeURIComponent(query)}`);
+  },
+
   downloadURL(id: string): string {
     const base = "http://localhost:8080";
     return `${base}/documents/${id}/file`;

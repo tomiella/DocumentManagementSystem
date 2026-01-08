@@ -21,6 +21,7 @@ public class OcrConsumer {
     private final MinioService minioService;
     private final org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate;
     private final at.bif.swen.ocrworker.service.GenAiService genAiService;
+    private final at.bif.swen.ocrworker.service.ElasticsearchService elasticsearchService;
 
     @RabbitListener(queues = AmqpConfig.QUEUE)
     public void onDocument(DocumentCreatedEvent evt) {
@@ -41,6 +42,9 @@ public class OcrConsumer {
             String result = tesseract.doOCR(tempFile);
 
             log.info("OCR Result for {}: {}", evt.filename(), result);
+
+            // Index to Elasticsearch
+            elasticsearchService.indexDocument(String.valueOf(evt.id()), result);
 
             String summary = genAiService.summarize(result);
             log.info("Summary for document id={}: {}", evt.id(), summary);
