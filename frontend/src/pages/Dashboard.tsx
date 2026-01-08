@@ -34,6 +34,14 @@ export default function Dashboard() {
     };
   }, []);
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
+
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedQuery(searchQuery), 500);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
   useEffect(() => {
     const ac = new AbortController();
 
@@ -41,7 +49,12 @@ export default function Dashboard() {
       try {
         setLoading(true);
         setError(null);
-        const data = await paperless.list();
+        let data;
+        if (debouncedQuery.trim()) {
+          data = await paperless.search(debouncedQuery);
+        } else {
+          data = await paperless.list();
+        }
         if (!ac.signal.aborted) setRows(data);
       } catch (e: any) {
         if (!ac.signal.aborted)
@@ -53,7 +66,7 @@ export default function Dashboard() {
 
     fetchRows();
     return () => ac.abort();
-  }, []);
+  }, [debouncedQuery]);
 
   const handleDownload = async (doc: DocumentDto) => {
     try {
@@ -128,6 +141,25 @@ export default function Dashboard() {
         <div className="flex items-center gap-2 text-sm text-gray-400">
           <span>{rows.length} document{rows.length !== 1 ? 's' : ''}</span>
         </div>
+      </div>
+
+      {/* Search Bar */}
+      <div className="relative">
+        <input
+          type="text"
+          placeholder="Search documents..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-gray-200 focus:outline-none focus:border-blue-500 transition-colors"
+        />
+        {searchQuery && (
+          <button
+            onClick={() => setSearchQuery("")}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+          >
+            ✕
+          </button>
+        )}
       </div>
 
       {/* Stats Cards - Optional, can be removed if not needed */}

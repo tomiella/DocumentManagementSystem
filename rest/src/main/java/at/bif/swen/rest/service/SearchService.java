@@ -1,4 +1,4 @@
-package at.bif.swen.rest.search;
+package at.bif.swen.rest.service;
 
 import at.bif.swen.rest.entity.Document;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
@@ -6,40 +6,41 @@ import co.elastic.clients.elasticsearch.core.GetResponse;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
-public class ElasticsearchSearchService implements SearchService {
+@RequiredArgsConstructor
+@Slf4j
+public class SearchService {
 
-    private static final Logger log = LoggerFactory.getLogger(ElasticsearchSearchService.class);
-
-    private final ElasticsearchClient client;
+    private final ElasticsearchClient elasticsearchClient;
 
     @Value("${elasticsearch.index:documents}")
     private String index;
 
-    public ElasticsearchSearchService(ElasticsearchClient client) {
-        this.client = client;
+    public record SearchDocument(String id, String title, String summary, String content) {
     }
-
-    public record SearchDocument(String id, String title, String summary, String content) {}
 
     @PostConstruct
     void ensureIndexExists() {
         try {
-            boolean exists = client.indices().exists(i -> i.index(index)).value();
+            boolean exists = elasticsearchClient.indices().exists(i -> i.index(index)).value();
             if (!exists) {
-                client.indices().create(c -> c.index(index));
+                elasticsearchClient.indices().create(c -> c.index(index));
                 log.info("Created Elasticsearch index '{}'", index);
             }
         } catch (Exception e) {
@@ -47,9 +48,31 @@ public class ElasticsearchSearchService implements SearchService {
         }
     }
 
-    @Override
+    public List<Map<String, Object>> search(String query) {
+        try {
+            SearchResponse<Map> response = elasticsearchClient.search(s -> s
+                    .index(index)
+                    .query(q -> q
+                            .multiMatch(t -> t
+                                    .fields("title", "summary", "content")
+                                    .query(query)
+                                    .fuzziness("AUTO"))),
+                    Map.class);
+
+            return response.hits().hits().stream()
+                    .map(Hit::source)
+                    .map(source -> (Map<String, Object>) source)
+                    .collect(Collectors.toList());
+
+        } catch (IOException e) {
+            log.error("Error searching documents", e);
+            return Collections.emptyList();
+        }
+    }
+
     public void indexUploadedFile(Document document, MultipartFile file) {
-        if (document == null || document.getId() == null) return;
+        if (document == null || document.getId() == null)
+            return;
 
         String extracted = extractPdfText(file);
         String contentForSearch = (extracted != null && !extracted.isBlank())
@@ -59,18 +82,17 @@ public class ElasticsearchSearchService implements SearchService {
         indexDoc(document, contentForSearch);
     }
 
-    @Override
     public List<UUID> searchIds(String query) {
-        if (query == null || query.isBlank()) return List.of();
+        if (query == null || query.isBlank())
+            return List.of();
 
         try {
-            SearchResponse<SearchDocument> resp = client.search(s -> s
-                            .index(index)
-                            .query(q -> q.multiMatch(mm -> mm
-                                    .query(query)
-                                    .fields("title", "summary", "content")
-                                    .fuzziness("AUTO")
-                            )),
+            SearchResponse<SearchDocument> resp = elasticsearchClient.search(s -> s
+                    .index(index)
+                    .query(q -> q.multiMatch(mm -> mm
+                            .query(query)
+                            .fields("title", "summary", "content")
+                            .fuzziness("AUTO"))),
                     SearchDocument.class);
 
             List<UUID> ids = new ArrayList<>();
@@ -89,13 +111,13 @@ public class ElasticsearchSearchService implements SearchService {
         }
     }
 
-    @Override
     public void updateTitleSummary(Document document) {
-        if (document == null || document.getId() == null) return;
+        if (document == null || document.getId() == null)
+            return;
 
         String existingContent = "";
         try {
-            GetResponse<SearchDocument> get = client.get(g -> g
+            GetResponse<SearchDocument> get = elasticsearchClient.get(g -> g
                     .index(index)
                     .id(document.getId().toString()), SearchDocument.class);
 
@@ -109,29 +131,29 @@ public class ElasticsearchSearchService implements SearchService {
         indexDoc(document, existingContent);
     }
 
-    @Override
     public void deleteById(UUID id) {
-        if (id == null) return;
+        if (id == null)
+            return;
 
         try {
-            client.delete(d -> d.index(index).id(id.toString()));
+            elasticsearchClient.delete(d -> d.index(index).id(id.toString()));
         } catch (Exception e) {
             log.warn("Elasticsearch delete failed for {}: {}", id, e.getMessage());
         }
     }
 
     private void indexDoc(Document doc, String content) {
-        if (doc == null || doc.getId() == null) return;
+        if (doc == null || doc.getId() == null)
+            return;
 
         try {
             SearchDocument sd = new SearchDocument(
                     doc.getId().toString(),
                     doc.getTitle(),
                     doc.getSummary(),
-                    content == null ? "" : content
-            );
+                    content == null ? "" : content);
 
-            client.index(i -> i.index(index).id(sd.id()).document(sd));
+            elasticsearchClient.index(i -> i.index(index).id(sd.id()).document(sd));
             log.info("Indexed document {} into '{}'", doc.getId(), index);
 
         } catch (Exception e) {
@@ -140,10 +162,12 @@ public class ElasticsearchSearchService implements SearchService {
     }
 
     private String extractPdfText(MultipartFile file) {
-        if (file == null || file.isEmpty()) return "";
+        if (file == null || file.isEmpty())
+            return "";
 
         String contentType = file.getContentType();
-        if (contentType == null || !contentType.equalsIgnoreCase("application/pdf")) return "";
+        if (contentType == null || !contentType.equalsIgnoreCase("application/pdf"))
+            return "";
 
         try (PDDocument pdf = PDDocument.load(file.getInputStream())) {
             return new PDFTextStripper().getText(pdf);

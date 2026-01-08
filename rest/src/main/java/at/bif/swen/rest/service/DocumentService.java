@@ -1,6 +1,5 @@
 package at.bif.swen.rest.service;
 
-import at.bif.swen.rest.search.SearchService;
 import at.bif.swen.rest.config.AmqpConfig;
 import at.bif.swen.rest.dto.DocumentCreateRequest;
 import at.bif.swen.rest.dto.DocumentUpdateRequest;
@@ -75,21 +74,17 @@ public class DocumentService {
 
     @Transactional(readOnly = true)
     public List<Document> search(String title) {
-/*
-        if (title != null && !title.isBlank()) {
-            return documentRepository.findByTitleContainingIgnoreCase(title.trim());
-        }
-
-        return documentRepository.findAll();
-*/
-
-
-
+        /*
+         * if (title != null && !title.isBlank()) {
+         * return documentRepository.findByTitleContainingIgnoreCase(title.trim());
+         * }
+         * 
+         * return documentRepository.findAll();
+         */
 
         if (title == null || title.isBlank()) {
             return documentRepository.findAll();
         }
-
 
         String query = title.trim();
 
@@ -102,19 +97,19 @@ public class DocumentService {
         List<Document> docs = documentRepository.findAllById(ids);
 
         Map<UUID, Document> mapById = new HashMap<>();
-        for (Document d : docs) mapById.put(d.getId(), d);
+        for (Document d : docs)
+            mapById.put(d.getId(), d);
 
         List<Document> ordered = new ArrayList<>();
         for (UUID id : ids) {
             Document d = mapById.get(id);
-            if (d != null) ordered.add(d);
+            if (d != null)
+                ordered.add(d);
         }
 
         return ordered;
 
     }
-
-
 
     @Transactional
     public Document update(UUID id, DocumentUpdateRequest req) {
@@ -159,7 +154,7 @@ public class DocumentService {
         doc.setFilename(key);
 
         doc = documentRepository.save(doc);
-        searchService.indexUploadedFile(doc,file);
+        searchService.indexUploadedFile(doc, file);
 
         // Publish event
         DocumentCreatedEvent evt = new DocumentCreatedEvent(doc.getId(), doc.getFilename(), doc.getContentType(),
