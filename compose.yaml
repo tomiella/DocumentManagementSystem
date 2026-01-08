@@ -23,6 +23,8 @@ services:
       RABBITMQ_DEFAULT_PASS: guest
     networks: [paperless]
 
+
+
   # ---- MinIO - Datastorage -----
   minio:
     image: minio/minio:latest
@@ -43,6 +45,34 @@ services:
       interval: 30s
       timeout: 20s
       retries: 3
+    restart: unless-stopped
+    networks: [paperless]
+
+  # ---- Elasticsearch + Kibana (ELK) -----
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.16.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      # Optional: keep memory predictable on developer machines
+      # - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    restart: unless-stopped
+    networks: [paperless]
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.16.0
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    ports:
+      - "5601:5601"
     restart: unless-stopped
     networks: [paperless]
 
@@ -114,6 +144,7 @@ volumes:
   pgdata:
   #  uploads:
   minio-data:
+  esdata:
 
 networks:
   paperless:
