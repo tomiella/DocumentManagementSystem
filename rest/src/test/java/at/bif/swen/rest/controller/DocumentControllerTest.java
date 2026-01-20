@@ -17,17 +17,30 @@ import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+
+import org.springframework.security.test.context.support.WithMockUser;
+import at.bif.swen.rest.mapper.DocumentMapper;
+import at.bif.swen.rest.service.AccessTrackingService;
 
 @WebMvcTest(controllers = DocumentController.class)
+@WithMockUser(username = "admin", roles = { "USER" })
 class DocumentControllerTest {
 
-    @Autowired MockMvc mvc;
-    @Autowired ObjectMapper om;
-    @MockBean DocumentService documentService;
+    @Autowired
+    MockMvc mvc;
+    @Autowired
+    ObjectMapper om;
+    @MockBean
+    DocumentService documentService;
+    @MockBean
+    DocumentMapper documentMapper;
+    @MockBean
+    AccessTrackingService accessTrackingService;
 
     @Test
     void create_returns_201_with_location() throws Exception {
-        var req = new DocumentCreateRequest("t","f.pdf","application/pdf",1L,"sum");
+        var req = new DocumentCreateRequest("t", "f.pdf", "application/pdf", 1L, "sum");
         var saved = Document.builder()
                 .id(UUID.randomUUID())
                 .title("t")
@@ -39,8 +52,9 @@ class DocumentControllerTest {
         Mockito.when(documentService.create(req)).thenReturn(saved);
 
         mvc.perform(post("/documents")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(om.writeValueAsString(req)))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(req)))
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"));
     }

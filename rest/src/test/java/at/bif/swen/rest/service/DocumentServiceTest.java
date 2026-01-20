@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 import java.util.*;
 
@@ -23,6 +24,12 @@ class DocumentServiceTest {
     DocumentRepository documentRepository;
     @Mock
     SearchService searchService;
+    @Mock
+    RabbitTemplate rabbitTemplate;
+    @Mock
+    StoragePort storagePort;
+    @Mock
+    at.bif.swen.rest.mapper.DocumentMapper documentMapper;
     @InjectMocks
     DocumentService documentService;
 
