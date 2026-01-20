@@ -1,0 +1,104 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  JAVA_VERSION: "21"
+
+jobs:
+  build-rest:
+    name: Build REST API
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./rest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: "temurin"
+          cache: "maven"
+
+      - name: Build with Maven
+        run: ./mvnw clean verify -DskipTests
+
+      - name: Run tests
+        run: ./mvnw test
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rest-api-jar
+          path: rest/target/*.jar
+          retention-days: 7
+
+  build-ocr-worker:
+    name: Build OCR Worker
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./ocr-worker
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: "temurin"
+          cache: "maven"
+
+      - name: Build with Maven
+        run: ./mvnw clean verify -DskipTests
+
+      - name: Run tests
+        run: ./mvnw test
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ocr-worker-jar
+          path: ocr-worker/target/*.jar
+          retention-days: 7
+
+  build-batch-service:
+    name: Build Batch Service
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./batch-service
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: "temurin"
+          cache: "maven"
+
+      - name: Build with Maven
+        run: mvn clean verify -DskipTests
+
+      - name: Run tests
+        run: mvn test
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: batch-service-jar
+          path: batch-service/target/*.jar
+          retention-days: 7
