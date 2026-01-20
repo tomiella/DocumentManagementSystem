@@ -26,69 +26,72 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.springframework.security.test.context.support.WithMockUser;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@WithMockUser(username = "admin", roles = { "USER" })
 class DocumentUploadIntegrationTest {
 
-    @Autowired
-    private MockMvc mvc;
+        @Autowired
+        private MockMvc mvc;
 
-    @Autowired
-    private DocumentRepository documentRepository;
+        @Autowired
+        private DocumentRepository documentRepository;
 
-    @MockBean
-    private StoragePort storagePort;
+        @MockBean
+        private StoragePort storagePort;
 
-    @MockBean
-    private SearchService searchService;
+        @MockBean
+        private SearchService searchService;
 
-    @MockBean
-    private RabbitTemplate rabbitTemplate;
+        @MockBean
+        private RabbitTemplate rabbitTemplate;
 
-    @Test
-    void shouldUploadDocumentAndPersist() throws Exception {
-        // Arrange
-        String title = "Integration Test Doc";
-        String summary = "This is a summary of the uploaded document.";
-        String filename = "test-doc.pdf";
-        String contentType = "application/pdf";
-        byte[] content = "Dummy PDF Content".getBytes();
+        @Test
+        void shouldUploadDocumentAndPersist() throws Exception {
+                // Arrange
+                String title = "Integration Test Doc";
+                String summary = "This is a summary of the uploaded document.";
+                String filename = "test-doc.pdf";
+                String contentType = "application/pdf";
+                byte[] content = "Dummy PDF Content".getBytes();
 
-        MockMultipartFile file = new MockMultipartFile(
-                "file",
-                filename,
-                contentType,
-                content);
+                MockMultipartFile file = new MockMultipartFile(
+                                "file",
+                                filename,
+                                contentType,
+                                content);
 
-        // Mock StoragePort to return a key (e.g., the original filename or a UUID)
-        when(storagePort.store(any())).thenReturn("stored-" + filename);
+                // Mock StoragePort to return a key (e.g., the original filename or a UUID)
+                when(storagePort.store(any())).thenReturn("stored-" + filename);
 
-        // Act
-        mvc.perform(multipart("/documents/upload")
-                .file(file)
-                .param("title", title)
-                .param("summary", summary))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.title").value(title))
-                .andExpect(jsonPath("$.filename").value("stored-" + filename))
-                .andExpect(jsonPath("$.summary").value(summary));
+                // Act
+                mvc.perform(multipart("/documents/upload")
+                                .file(file)
+                                .param("title", title)
+                                .param("summary", summary))
+                                .andExpect(status().isCreated())
+                                .andExpect(jsonPath("$.title").value(title))
+                                .andExpect(jsonPath("$.filename").value("stored-" + filename))
+                                .andExpect(jsonPath("$.summary").value(summary));
 
-        // Assert - Database Persistence
-        Document savedDoc = documentRepository.findAll().stream()
-                .filter(d -> d.getTitle().equals(title))
-                .findFirst()
-                .orElse(null);
+                // Assert - Database Persistence
+                Document savedDoc = documentRepository.findAll().stream()
+                                .filter(d -> d.getTitle().equals(title))
+                                .findFirst()
+                                .orElse(null);
 
-        assertThat(savedDoc).isNotNull();
-        assertThat(savedDoc.getFilename()).isEqualTo("stored-" + filename);
-        assertThat(savedDoc.getContentType()).isEqualTo(contentType);
-        assertThat(savedDoc.getSize()).isEqualTo(content.length);
-        assertThat(savedDoc.getUploadedAt()).isNotNull();
+                assertThat(savedDoc).isNotNull();
+                assertThat(savedDoc.getFilename()).isEqualTo("stored-" + filename);
+                assertThat(savedDoc.getContentType()).isEqualTo(contentType);
+                assertThat(savedDoc.getSize()).isEqualTo(content.length);
+                assertThat(savedDoc.getUploadedAt()).isNotNull();
 
-        // Assert - Interaction with Dependencies
-        verify(storagePort).store(any());
-        verify(searchService).indexUploadedFile(any(Document.class), any());
-        verify(rabbitTemplate).convertAndSend(anyString(), anyString(), any(Object.class));
-    }
+                // Assert - Interaction with Dependencies
+                verify(storagePort).store(any());
+                verify(searchService).indexUploadedFile(any(Document.class), any());
+                verify(rabbitTemplate).convertAndSend(anyString(), anyString(), any(Object.class));
+        }
 }
