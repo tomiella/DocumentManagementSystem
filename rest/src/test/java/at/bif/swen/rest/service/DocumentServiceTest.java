@@ -19,12 +19,16 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class DocumentServiceTest {
 
-    @Mock DocumentRepository documentRepository;
-    @InjectMocks DocumentService documentService;
+    @Mock
+    DocumentRepository documentRepository;
+    @Mock
+    SearchService searchService;
+    @InjectMocks
+    DocumentService documentService;
 
     @Test
     void create_saves() {
-        var req = new DocumentCreateRequest("T","a.pdf","application/pdf",10L,"s");
+        var req = new DocumentCreateRequest("T", "a.pdf", "application/pdf", 10L, "s");
         when(documentRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         Document saved = documentService.create(req);
@@ -43,7 +47,8 @@ class DocumentServiceTest {
     @Test
     void update_sets_title_summary() {
         UUID id = UUID.randomUUID();
-        Document existing = Document.builder().id(id).title("old").filename("a.pdf").contentType("application/pdf").size(1L).build();
+        Document existing = Document.builder().id(id).title("old").filename("a.pdf").contentType("application/pdf")
+                .size(1L).build();
         when(documentRepository.findById(id)).thenReturn(Optional.of(existing));
         when(documentRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
