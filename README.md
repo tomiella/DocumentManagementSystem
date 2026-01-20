@@ -30,7 +30,7 @@ A full-stack document management solution with OCR processing, full-text search,
           ▼                                 ▼
     ┌─────────────┐                 ┌──────────────┐
     │  OCR Worker │                 │ Batch Service│
-    │  (Python)   │                 │ (Spring Boot)│
+    │             │                 │ (Spring Boot)│
     └─────────────┘                 └──────────────┘
 ```
 
