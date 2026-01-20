@@ -109,6 +109,9 @@ services:
       - minio
     ports:
       - "8080:8080"
+    volumes:
+      - access-logs-input:/data/access-logs/input
+      - access-logs-archive:/data/access-logs/archive
     restart: unless-stopped
     networks: [paperless]
 
@@ -144,11 +147,32 @@ services:
     networks: [paperless]
     restart: unless-stopped
 
+  # ---- Batch Service for XML Access Logs ----
+  batch-service:
+    build: ./batch-service
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: secret
+      BATCH_INPUT_FOLDER: /data/access-logs/input
+      BATCH_ARCHIVE_FOLDER: /data/access-logs/archive
+      BATCH_CRON: "0 * * * * ?"
+    volumes:
+      - access-logs-input:/data/access-logs/input
+      - access-logs-archive:/data/access-logs/archive
+    depends_on:
+      - postgres
+    networks: [paperless]
+    restart: unless-stopped
+
 volumes:
   pgdata:
   #  uploads:
   minio-data:
   esdata:
+  access-logs-input:
+  access-logs-archive:
 
 networks:
   paperless:

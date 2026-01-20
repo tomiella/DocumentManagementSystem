@@ -6,6 +6,7 @@ import at.bif.swen.rest.dto.DocumentUpdateRequest;
 
 import at.bif.swen.rest.entity.Document;
 import at.bif.swen.rest.mapper.DocumentMapper;
+import at.bif.swen.rest.service.AccessTrackingService;
 import at.bif.swen.rest.service.DocumentService;
 
 import jakarta.validation.Valid;
@@ -28,6 +29,7 @@ public class DocumentController {
 
     private final DocumentService documentService;
     private final DocumentMapper mapper;
+    private final AccessTrackingService accessTrackingService;
 
     @PostMapping
     public ResponseEntity<DocumentDto> create(@Valid @RequestBody DocumentCreateRequest req) {
@@ -39,17 +41,20 @@ public class DocumentController {
 
     @GetMapping("/{id}")
     public DocumentDto get(@PathVariable UUID id) {
+        accessTrackingService.recordAccess(id);
         return mapper
                 .toDto(documentService.get(id));
     }
 
     @GetMapping
     public List<DocumentDto> list(@RequestParam(required = false) String title) {
-        return documentService
+        List<DocumentDto> documents = documentService
                 .search(title)
                 .stream()
                 .map(mapper::toDto)
                 .toList();
+        documents.forEach(doc -> accessTrackingService.recordAccess(doc.id()));
+        return documents;
     }
 
     // Note: UPLOAD
@@ -99,7 +104,7 @@ public class DocumentController {
     // Note: Download
     @GetMapping("/{id}/file")
     public ResponseEntity<Resource> download(@PathVariable UUID id) throws Exception {
-
+        accessTrackingService.recordAccess(id);
         var doc = documentService.get(id);
 
         Resource resource = documentService.loadFile(id);

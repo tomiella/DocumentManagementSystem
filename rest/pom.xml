@@ -175,6 +175,18 @@
         <version>8.6.0</version>
     </dependency>
 
+    <!-- JAXB for XML parsing in batch service -->
+    <dependency>
+        <groupId>jakarta.xml.bind</groupId>
+        <artifactId>jakarta.xml.bind-api</artifactId>
+        <version>4.0.2</version>
+    </dependency>
+    <dependency>
+        <groupId>org.glassfish.jaxb</groupId>
+        <artifactId>jaxb-runtime</artifactId>
+        <version>4.0.5</version>
+        <scope>runtime</scope>
+    </dependency>
 
 </dependencies>
 
