@@ -40,7 +40,7 @@ A full-stack document management solution with OCR processing, full-text search,
 |-----------------|-------------------------------------|
 | Frontend        | React, Vite, TailwindCSS            |
 | Backend API     | Java 21, Spring Boot 3              |
-| OCR Worker      | Python, Tesseract, Google Gemini    |
+| OCR Worker      | Tesseract, Google Gemini            |
 | Batch Service   | Java, Spring Batch                  |
 | Database        | PostgreSQL 16                       |
 | Search Engine   | Elasticsearch 8.14                  |
@@ -53,7 +53,7 @@ A full-stack document management solution with OCR processing, full-text search,
 ### Prerequisites
 
 - Docker & Docker Compose
-- (Optional) Google Gemini API key for AI summarization
+- Google Gemini API key for AI summarization
 
 ### 1. Clone the repository
 
@@ -96,31 +96,6 @@ docker compose up -d
 | RabbitMQ    | `guest`        | `guest`             |
 | PostgreSQL  | `myuser`       | `secret`            |
 
-## Development Setup
-
-### Backend (REST API)
-
-```bash
-cd rest
-./mvnw spring-boot:run
-```
-
-### Frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-### OCR Worker
-
-```bash
-cd ocr-worker
-pip install -r requirements.txt
-python main.py
-```
-
 ## API Endpoints
 
 ### Documents
@@ -145,7 +120,7 @@ python main.py
 DocumentManagementSystem/
 ├── rest/              # Spring Boot REST API
 ├── frontend/          # React frontend application
-├── ocr-worker/        # Python OCR processing service
+├── ocr-worker/        # OCR processing service
 ├── batch-service/     # Spring Batch for XML processing
 ├── compose.yaml       # Docker Compose configuration
 └── README.md
